@@ -1,0 +1,12 @@
+bin/*
+build/*
+resources/build/*
+resources/libgaba/bench
+resources/libgaba/example
+resources/libgaba/gaba.affine.*
+resources/libgaba/gaba.combined.*
+resources/libgaba/gaba.linear.*
+resources/libgaba/gaba_common.o
+resources/libgaba/libgaba.a
+resources/libgaba/unittest
+resources/parasail/build
