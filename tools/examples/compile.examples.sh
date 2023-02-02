@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/hamid/WFA/build
+
 # Check library
 if [ ! -f "../../build/libwfa.a" ]; then
   echo "Library libwfa.a not found. Please compile WFA library from top folder first"
