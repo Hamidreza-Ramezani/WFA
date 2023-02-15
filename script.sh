@@ -16,7 +16,7 @@ data_path1="${dataset_path}/${data1}-l${l1}-${distance}-${pairs_count}Pairs"
 data_path2="${dataset_path}/${data2}-l${l2}-${distance}-${pairs_count}Pairs" 
 data_path3="${dataset_path}/${data3}-l${l3}-${distance}-${pairs_count}Pairs" 
 
-export OMP_NUM_THREADS=8
+#export OMP_NUM_THREADS=40
 
 #./bin/align_benchmark -i ${data_path1} -a edit-dp
 #./bin/align_benchmark -i ${data_path1} -a edit-dp-banded --bandwidth 1

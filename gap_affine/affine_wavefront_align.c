@@ -35,6 +35,7 @@
 #include "gap_affine/affine_wavefront_extend.h"
 #include "gap_affine/affine_wavefront_utils.h"
 #include "utils/string_padded.h"
+#include <omp.h>
 
 /*
  * Fetch & allocate wavefronts
@@ -140,6 +141,8 @@ void affine_wavefronts_compute_offsets_idm(
   if (!wavefront_set->in_dwavefront_ext->null && max_lo < wavefront_set->in_dwavefront_ext->lo-1) max_lo = wavefront_set->in_dwavefront_ext->lo-1;
   // Compute score wavefronts (prologue)
   int k;
+
+#pragma GCC ivdep
   for (k=lo;k<max_lo;++k) {
     // Update I
     const awf_offset_t ins_g = AFFINE_WAVEFRONT_COND_FETCH(m_gap,k-1,m_gap_offsets[k-1]);
@@ -156,13 +159,16 @@ void affine_wavefronts_compute_offsets_idm(
     out_moffsets[k] = MAX(del,MAX(sub,ins));
   }
   // Compute score wavefronts (core)
-#if defined(__clang__)
-  #pragma clang loop vectorize(enable)
-#elif defined(__GNUC__) || defined(__GNUG__)
-  #pragma GCC ivdep
-#else
-  #pragma ivdep
-#endif
+//#if defined(__clang__)
+//  #pragma clang loop vectorize(enable)
+//#elif defined(__GNUC__) || defined(__GNUG__)
+//  #pragma GCC ivdep
+//#else
+//  #pragma ivdep
+//#endif
+#pragma GCC ivdep
+//#pragma omp parallel num_threads(1)
+//{
   for (k=max_lo;k<=min_hi;++k) {
     // Update I
     const awf_offset_t m_gapi_value = m_gap_offsets[k-1];
@@ -179,6 +185,8 @@ void affine_wavefronts_compute_offsets_idm(
     out_moffsets[k] = MAX(del,MAX(sub,ins));
   }
   // Compute score wavefronts (epilogue)
+
+#pragma GCC ivdep
   for (k=min_hi+1;k<=hi;++k) {
     // Update I
     const awf_offset_t ins_g = AFFINE_WAVEFRONT_COND_FETCH(m_gap,k-1,m_gap_offsets[k-1]);
@@ -194,6 +202,8 @@ void affine_wavefronts_compute_offsets_idm(
     const awf_offset_t sub = AFFINE_WAVEFRONT_COND_FETCH(m_sub,k,m_sub_offsets[k]+1);
     out_moffsets[k] = MAX(del,MAX(sub,ins));
   }
+//}
+
 }
 void affine_wavefronts_compute_offsets_im(
     affine_wavefronts_t* const affine_wavefronts,
@@ -208,11 +218,15 @@ void affine_wavefronts_compute_offsets_im(
   awf_offset_t* const out_moffsets = wavefront_set->out_mwavefront->offsets;
   // Compute score wavefronts
   int k;
-#if defined(__GNUC__) || defined(__GNUG__)
-  #pragma GCC ivdep
-#else
-  #pragma ivdep
-#endif
+//#if defined(__GNUC__) || defined(__GNUG__)
+//  #pragma GCC ivdep
+//#else
+//  #pragma ivdep
+//#endif
+
+#pragma GCC ivdep
+//#pragma omp parallel num_threads(1) 
+//{
   for (k=lo;k<=hi;++k) {
     // Update I
     const awf_offset_t ins_g = AFFINE_WAVEFRONT_COND_FETCH(m_gap,k-1,m_gap_offsets[k-1]);
@@ -223,6 +237,7 @@ void affine_wavefronts_compute_offsets_im(
     const awf_offset_t sub = AFFINE_WAVEFRONT_COND_FETCH(m_sub,k,m_sub_offsets[k]+1);
     out_moffsets[k] = MAX(ins,sub);
   }
+//}
 }
 void affine_wavefronts_compute_offsets_dm(
     affine_wavefronts_t* const affine_wavefronts,
@@ -237,11 +252,15 @@ void affine_wavefronts_compute_offsets_dm(
   awf_offset_t* const out_moffsets = wavefront_set->out_mwavefront->offsets;
   // Compute score wavefronts
   int k;
-#if defined(__GNUC__) || defined(__GNUG__)
-  #pragma GCC ivdep
-#else
-  #pragma ivdep
-#endif
+//#if defined(__GNUC__) || defined(__GNUG__)
+//  #pragma GCC ivdep
+//#else
+//  #pragma ivdep
+//#endif
+
+#pragma GCC ivdep
+//#pragma omp parallel num_threads(1) 
+//{
   for (k=lo;k<=hi;++k) {
     // Update D
     const awf_offset_t del_g = AFFINE_WAVEFRONT_COND_FETCH(m_gap,k+1,m_gap_offsets[k+1]);
@@ -252,6 +271,7 @@ void affine_wavefronts_compute_offsets_dm(
     const awf_offset_t sub = AFFINE_WAVEFRONT_COND_FETCH(m_sub,k,m_sub_offsets[k]+1);
     out_moffsets[k] = MAX(del,sub);
   }
+//}
 }
 void affine_wavefronts_compute_offsets_m(
     affine_wavefronts_t* const affine_wavefronts,
@@ -263,15 +283,20 @@ void affine_wavefronts_compute_offsets_m(
   awf_offset_t* const out_moffsets = wavefront_set->out_mwavefront->offsets;
   // Compute score wavefronts
   int k;
-#if defined(__GNUC__) || defined(__GNUG__)
-  #pragma GCC ivdep
-#else
-  #pragma ivdep
-#endif
+//#if defined(__GNUC__) || defined(__GNUG__)
+//  #pragma GCC ivdep
+//#else
+//  #pragma ivdep
+//#endif
+
+#pragma GCC ivdep
+//#pragma omp parallel num_threads(1) 
+//{
   for (k=lo;k<=hi;++k) {
     // Update M
     out_moffsets[k] = AFFINE_WAVEFRONT_COND_FETCH(m_sub,k,m_sub_offsets[k]+1);
   }
+//}
 }
 /*
  * Compute wavefront
