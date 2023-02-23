@@ -34,6 +34,9 @@
 #include "gap_affine/affine_wavefront_reduction.h"
 #include "gap_affine/affine_wavefront_utils.h"
 #include "utils/string_padded.h"
+#include <omp.h>
+
+#define PAD 8 // assume 64 byte L1 cache line size
 
 /*
  * Reduce wavefront
@@ -89,10 +92,13 @@ void affine_wavefronts_reduce_wavefronts(
   const awf_offset_t* const offsets = mwavefront->offsets;
   int min_distance = MAX(pattern_length,text_length);
   int k;
+  //#pragma omp parallel num_threads(39)
+  //{
   for (k=mwavefront->lo;k<=mwavefront->hi;++k) {
     const int distance = affine_wavefronts_compute_distance(pattern_length,text_length,offsets[k],k);
     min_distance = MIN(min_distance,distance);
   }
+  //}
   // Reduce m-wavefront
   affine_wavefronts_reduce_wavefront_offsets(
       affine_wavefronts,mwavefront,pattern_length,text_length,
@@ -149,8 +155,21 @@ void affine_wavefronts_extend_mwavefront_compute_packed(
   affine_wavefront_t* const mwavefront = affine_wavefronts->mwavefronts[score];
   if (mwavefront==NULL) return;
   // Extend diagonally each wavefront point
-  awf_offset_t* const offsets = mwavefront->offsets;
   int k;
+  awf_offset_t* const offsets = mwavefront->offsets;
+  //int size = mwavefront->hi+1; 
+  //awf_offset_t offsets_padded[size][PAD];
+  //for (k=mwavefront->lo;k<=mwavefront->hi;++k) {
+  //   (offsets_padded[k])[0] = offsets[k];
+  //   int j;
+  //   for (j=1; j<= PAD-1; j++) {
+  //      (offsets_padded[k])[j] = (awf_offset_t)0;
+  //   }
+  //}
+  //awf_offset_t offsets[size * PAD] __attribute__ ((aligned (8))); 
+  //memcpy(offsets, mwavefront->offsets[(int) (mwavefront->lo)], size);
+  //#pragma omp parallel num_threads(32)
+  //{
   for (k=mwavefront->lo;k<=mwavefront->hi;++k) {
     // Fetch offset & positions
     const awf_offset_t offset = offsets[k];
@@ -184,6 +203,7 @@ void affine_wavefronts_extend_mwavefront_compute_packed(
     // Increment offset
     offsets[k] += equal_chars;
   }
+  //}
   // DEBUG
   affine_wavefronts_extend_mwavefront_epiloge(
       affine_wavefronts,score,pattern_length,text_length);

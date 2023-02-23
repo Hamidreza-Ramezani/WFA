@@ -42,6 +42,9 @@
 #include "benchmark/benchmark_gap_affine.h"
 #include "benchmark/benchmark_gap_lineal.h"
 
+
+#define MAX_LINE 10000000
+
 /*
  * Algorithms
  */
@@ -167,6 +170,9 @@ void align_pairwise_test() {
 /*
  * Benchmark
  */
+
+
+
 void align_benchmark(const alg_algorithm_type alg_algorithm) {
   // Parameters
   FILE *input_file = NULL;
@@ -195,12 +201,12 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
   timer_reset(&align_input.timer);
   // Read-align loop
   int reads_processed = 0, progress = 0;
-  while (true) {
+
+   while (true) {
     // Read queries
-    line1_length = getline(&line1,&line1_allocated,input_file);
-    if (line1_length==-1) break;
-    line2_length = getline(&line2,&line2_allocated,input_file);
-    if (line1_length==-1) break;
+    line1_length = getline(&line1, &line1_allocated, input_file);
+    line2_length = getline(&line2, &line2_allocated, input_file);
+    if (line1_length == -1 || line2_length == -1) break;
     // Configure input
     align_input.sequence_id = reads_processed;
     align_input.pattern = line1+1;
@@ -251,7 +257,9 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
       fprintf(stderr,"...processed %d reads (benchmark=%2.3f reads/s;alignment=%2.3f reads/s)\n",
           reads_processed,rate_global,rate_alg);
     }
-  }
+  } //while
+
+
   timer_stop(&(parameters.timer_global));
   // Print benchmark results
   fprintf(stderr,"[Benchmark]\n");
@@ -271,6 +279,9 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
   free(line1);
   free(line2);
 }
+
+
+
 /*
  * Generic Menu
  */

@@ -290,12 +290,16 @@ void affine_wavefronts_compute_offsets_m(
 //#endif
 
 #pragma GCC ivdep
-//#pragma omp parallel num_threads(1) 
+//#pragma omp parallel num_threads(32)
 //{
   for (k=lo;k<=hi;++k) {
     // Update M
     out_moffsets[k] = AFFINE_WAVEFRONT_COND_FETCH(m_sub,k,m_sub_offsets[k]+1);
   }
+  //for (k=omp_get_thread_num();k<=hi;k+=32) {
+  //  // Update M
+  //  out_moffsets[k] = AFFINE_WAVEFRONT_COND_FETCH(m_sub,k,m_sub_offsets[k]+1);
+  //}
 //}
 }
 /*
