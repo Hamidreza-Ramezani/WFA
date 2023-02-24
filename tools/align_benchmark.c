@@ -42,8 +42,13 @@
 #include "benchmark/benchmark_gap_affine.h"
 #include "benchmark/benchmark_gap_lineal.h"
 
+#include <pthread.h>
+#include <time.h>
 
 #define MAX_LINE 10000000
+
+#define NUM_THREADS 40
+
 
 /*
  * Algorithms
@@ -172,113 +177,218 @@ void align_pairwise_test() {
  */
 
 
+double what_time_is_it()
+{
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+    return now.tv_sec + now.tv_nsec*1e-9;
+}
+
+
+void *align(void *arg)
+{
+    int thread_id = *(int *)arg;
+    FILE *input_file = NULL;
+    char *line1 = NULL, *line2 = NULL;
+    int line1_length=0, line2_length=0;
+    size_t line1_size=0, line2_size=0;
+    align_input_t align_input;
+    // Init
+    timer_restart(&(parameters.timer_global));
+    input_file = fopen(parameters.input, "r");
+    if (input_file==NULL) {
+      fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
+      exit(1);
+    }
+    benchmark_align_input_clear(&align_input);
+    align_input.debug_flags = 0;
+    align_input.debug_flags |= parameters.check_metric;
+    if (parameters.check_correct) align_input.debug_flags |= ALIGN_DEBUG_CHECK_CORRECT;
+    if (parameters.check_score) align_input.debug_flags |= ALIGN_DEBUG_CHECK_SCORE;
+    if (parameters.check_alignments) align_input.debug_flags |= ALIGN_DEBUG_CHECK_ALIGNMENT;
+    align_input.check_lineal_penalties = &parameters.lineal_penalties;
+    align_input.check_affine_penalties = &parameters.affine_penalties;
+    align_input.check_bandwidth = parameters.check_bandwidth;
+    align_input.verbose = parameters.verbose;
+    align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
+    timer_reset(&align_input.timer);
+    // Read-align loop
+    int reads_processed = 0;
+    int num_lines = 10000000;
+
+    // Calculate the start and end positions for this thread
+    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
+    int start_line = thread_id * lines_per_thread;
+    int end_line = (thread_id + 1) * lines_per_thread - 1;
+
+    // If this is the last thread, include the remaining lines
+    if (thread_id == NUM_THREADS - 1) {
+        end_line = num_lines - 1;
+    }
+
+    int current_line = start_line;
+    fseek(input_file, start_line, SEEK_SET);
+    //printf("my id is %d\n", thread_id);
+
+    // Read the portion of the file
+    while (current_line <= end_line) {
+       // Read queries
+       line1_length = getline(&line1, &line1_size, input_file);
+       line2_length = getline(&line2, &line2_size, input_file);
+       if (line1_length == -1 || line2_length == -1) break;
+       // Configure input
+       align_input.sequence_id = reads_processed;
+       align_input.pattern = line1+1;
+       align_input.pattern_length = line1_length-2;
+       align_input.pattern[align_input.pattern_length] = '\0';
+       align_input.text = line2+1;
+       align_input.text_length = line2_length-2;
+       align_input.text[align_input.text_length] = '\0';
+       benchmark_gap_affine_wavefront(
+           &align_input,&parameters.affine_penalties,
+           parameters.min_wavefront_length,
+           parameters.max_distance_threshold);
+       reads_processed += 1;
+       //if (thread_id == 4) printf("number of reads processed %d\n", reads_processed);
+       current_line+=2;
+    } //while
+
+
+
+    fclose(input_file);
+    printf("my id is %d\n", thread_id);
+    return NULL;
+}
+
+
 
 void align_benchmark(const alg_algorithm_type alg_algorithm) {
-  // Parameters
-  FILE *input_file = NULL;
-  char *line1 = NULL, *line2 = NULL;
-  int line1_length=0, line2_length=0;
-  size_t line1_allocated=0, line2_allocated=0;
-  align_input_t align_input;
-  // Init
-  timer_restart(&(parameters.timer_global));
-  input_file = fopen(parameters.input, "r");
-  if (input_file==NULL) {
-    fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
-    exit(1);
-  }
-  benchmark_align_input_clear(&align_input);
-  align_input.debug_flags = 0;
-  align_input.debug_flags |= parameters.check_metric;
-  if (parameters.check_correct) align_input.debug_flags |= ALIGN_DEBUG_CHECK_CORRECT;
-  if (parameters.check_score) align_input.debug_flags |= ALIGN_DEBUG_CHECK_SCORE;
-  if (parameters.check_alignments) align_input.debug_flags |= ALIGN_DEBUG_CHECK_ALIGNMENT;
-  align_input.check_lineal_penalties = &parameters.lineal_penalties;
-  align_input.check_affine_penalties = &parameters.affine_penalties;
-  align_input.check_bandwidth = parameters.check_bandwidth;
-  align_input.verbose = parameters.verbose;
-  align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
-  timer_reset(&align_input.timer);
-  // Read-align loop
-  int reads_processed = 0, progress = 0;
+    pthread_t threads[NUM_THREADS];
+    int thread_ids[NUM_THREADS];
+    double time = what_time_is_it();
 
-   while (true) {
-    // Read queries
-    line1_length = getline(&line1, &line1_allocated, input_file);
-    line2_length = getline(&line2, &line2_allocated, input_file);
-    if (line1_length == -1 || line2_length == -1) break;
-    // Configure input
-    align_input.sequence_id = reads_processed;
-    align_input.pattern = line1+1;
-    align_input.pattern_length = line1_length-2;
-    align_input.pattern[align_input.pattern_length] = '\0';
-    align_input.text = line2+1;
-    align_input.text_length = line2_length-2;
-    align_input.text[align_input.text_length] = '\0';
-    // Align queries using DP
-    switch (alg_algorithm) {
-      case alignment_edit_dp:
-        benchmark_edit_dp(&align_input);
-        break;
-      case alignment_edit_dp_banded:
-        benchmark_edit_dp_banded(&align_input,parameters.bandwidth);
-        break;
-      case alignment_gap_lineal_nw:
-        benchmark_gap_lineal_nw(&align_input,&parameters.lineal_penalties);
-        break;
-      case alignment_gap_affine_swg:
-        benchmark_gap_affine_swg(&align_input,&parameters.affine_penalties);
-        break;
-      case alignment_gap_affine_swg_banded:
-        benchmark_gap_affine_swg_banded(&align_input,
-            &parameters.affine_penalties,parameters.bandwidth);
-        break;
-      case alignment_gap_affine_wavefront:
-        benchmark_gap_affine_wavefront(
-            &align_input,&parameters.affine_penalties,
-            parameters.min_wavefront_length,
-            parameters.max_distance_threshold);
-        break;
-      default:
-        fprintf(stderr,"Algorithm unknown or not implemented\n");
-        exit(1);
-        break;
+    // Create the threads
+    for (int i = 0; i < NUM_THREADS; i++) {
+        thread_ids[i] = i;
+        pthread_create(&threads[i], NULL, align, &thread_ids[i]);
     }
-    // Update progress
-    ++reads_processed;
-    // DEBUG mm_allocator_print(stderr,align_input.mm_allocator,true);
-    if (++progress == parameters.progress) {
-      progress = 0;
-      // Compute speed
-      const uint64_t time_elapsed_global = timer_elapsed_ns(&(parameters.timer_global));
-      const float rate_global = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_global);
-      const uint64_t time_elapsed_alg = timer_elapsed_ns(&(align_input.timer));
-      const float rate_alg = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_alg);
-      fprintf(stderr,"...processed %d reads (benchmark=%2.3f reads/s;alignment=%2.3f reads/s)\n",
-          reads_processed,rate_global,rate_alg);
+
+    // Wait for the threads to finish
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
     }
-  } //while
+    fprintf(stderr,"  => Time.Alignment  %f \n", what_time_is_it() - time);
 
-
-  timer_stop(&(parameters.timer_global));
-  // Print benchmark results
-  fprintf(stderr,"[Benchmark]\n");
-  fprintf(stderr,"=> Total.reads            %d\n",reads_processed);
-  fprintf(stderr,"=> Time.Benchmark      ");
-  timer_print(stderr,&parameters.timer_global,NULL);
-  fprintf(stderr,"  => Time.Alignment    ");
-  timer_print(stderr,&align_input.timer,&parameters.timer_global);
-  // Print Stats
-  if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
-    const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
-    benchmark_print_stats(stderr,&align_input,print_wf_stats);
-  }
-  // Free
-  fclose(input_file);
-  mm_allocator_delete(align_input.mm_allocator);
-  free(line1);
-  free(line2);
+    // Print the word count
 }
+
+
+//void align_benchmark(const alg_algorithm_type alg_algorithm) {
+//  // Parameters
+//  FILE *input_file = NULL;
+//  char *line1 = NULL, *line2 = NULL;
+//  int line1_length=0, line2_length=0;
+//  size_t line1_allocated=0, line2_allocated=0;
+//  align_input_t align_input;
+//  // Init
+//  timer_restart(&(parameters.timer_global));
+//  input_file = fopen(parameters.input, "r");
+//  if (input_file==NULL) {
+//    fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
+//    exit(1);
+//  }
+//  benchmark_align_input_clear(&align_input);
+//  align_input.debug_flags = 0;
+//  align_input.debug_flags |= parameters.check_metric;
+//  if (parameters.check_correct) align_input.debug_flags |= ALIGN_DEBUG_CHECK_CORRECT;
+//  if (parameters.check_score) align_input.debug_flags |= ALIGN_DEBUG_CHECK_SCORE;
+//  if (parameters.check_alignments) align_input.debug_flags |= ALIGN_DEBUG_CHECK_ALIGNMENT;
+//  align_input.check_lineal_penalties = &parameters.lineal_penalties;
+//  align_input.check_affine_penalties = &parameters.affine_penalties;
+//  align_input.check_bandwidth = parameters.check_bandwidth;
+//  align_input.verbose = parameters.verbose;
+//  align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
+//  timer_reset(&align_input.timer);
+//  // Read-align loop
+//  int reads_processed = 0, progress = 0;
+//
+//   while (true) {
+//    // Read queries
+//    line1_length = getline(&line1, &line1_allocated, input_file);
+//    line2_length = getline(&line2, &line2_allocated, input_file);
+//    if (line1_length == -1 || line2_length == -1) break;
+//    // Configure input
+//    align_input.sequence_id = reads_processed;
+//    align_input.pattern = line1+1;
+//    align_input.pattern_length = line1_length-2;
+//    align_input.pattern[align_input.pattern_length] = '\0';
+//    align_input.text = line2+1;
+//    align_input.text_length = line2_length-2;
+//    align_input.text[align_input.text_length] = '\0';
+//    // Align queries using DP
+//    switch (alg_algorithm) {
+//      case alignment_edit_dp:
+//        benchmark_edit_dp(&align_input);
+//        break;
+//      case alignment_edit_dp_banded:
+//        benchmark_edit_dp_banded(&align_input,parameters.bandwidth);
+//        break;
+//      case alignment_gap_lineal_nw:
+//        benchmark_gap_lineal_nw(&align_input,&parameters.lineal_penalties);
+//        break;
+//      case alignment_gap_affine_swg:
+//        benchmark_gap_affine_swg(&align_input,&parameters.affine_penalties);
+//        break;
+//      case alignment_gap_affine_swg_banded:
+//        benchmark_gap_affine_swg_banded(&align_input,
+//            &parameters.affine_penalties,parameters.bandwidth);
+//        break;
+//      case alignment_gap_affine_wavefront:
+//        benchmark_gap_affine_wavefront(
+//            &align_input,&parameters.affine_penalties,
+//            parameters.min_wavefront_length,
+//            parameters.max_distance_threshold);
+//        break;
+//      default:
+//        fprintf(stderr,"Algorithm unknown or not implemented\n");
+//        exit(1);
+//        break;
+//    }
+//    // Update progress
+//    ++reads_processed;
+//    // DEBUG mm_allocator_print(stderr,align_input.mm_allocator,true);
+//    if (++progress == parameters.progress) {
+//      progress = 0;
+//      // Compute speed
+//      const uint64_t time_elapsed_global = timer_elapsed_ns(&(parameters.timer_global));
+//      const float rate_global = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_global);
+//      const uint64_t time_elapsed_alg = timer_elapsed_ns(&(align_input.timer));
+//      const float rate_alg = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_alg);
+//      fprintf(stderr,"...processed %d reads (benchmark=%2.3f reads/s;alignment=%2.3f reads/s)\n",
+//          reads_processed,rate_global,rate_alg);
+//    }
+//  } //while
+//
+//
+//  timer_stop(&(parameters.timer_global));
+//  // Print benchmark results
+//  fprintf(stderr,"[Benchmark]\n");
+//  fprintf(stderr,"=> Total.reads            %d\n",reads_processed);
+//  fprintf(stderr,"=> Time.Benchmark      ");
+//  timer_print(stderr,&parameters.timer_global,NULL);
+//  fprintf(stderr,"  => Time.Alignment    ");
+//  timer_print(stderr,&align_input.timer,&parameters.timer_global);
+//  // Print Stats
+//  if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
+//    const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
+//    benchmark_print_stats(stderr,&align_input,print_wf_stats);
+//  }
+//  // Free
+//  fclose(input_file);
+//  mm_allocator_delete(align_input.mm_allocator);
+//  free(line1);
+//  free(line2);
+//}
 
 
 
