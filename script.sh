@@ -25,7 +25,7 @@ data_path_temp="${dataset_path}/temp.txt"
 #./bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "-1,1,1,1"
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg-banded --bandwidth 1
-program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1" "
+program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1"  --check"
 #program="./bin/align_benchmark -i ${data_path_temp} -a gap-affine-wfa -g "-1,1,1,1" "
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa-adaptive -g "-1,1,1,1"
 
@@ -40,8 +40,8 @@ program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1" 
 #sudo perf report
 
 
-#$program
-valgrind --tool=helgrind $program
+$program
+#valgrind --tool=helgrind $program
 
 #end=`date +%s.%N`
 #echo "$end - $start" | bc -l 

@@ -52,7 +52,7 @@
 
 #define MAX_LINE 10000000
 
-#define NUM_THREADS 40
+#define NUM_THREADS 80
 
 
 /*
@@ -193,28 +193,6 @@ double what_time_is_it()
 void *align(void *arg)
 {
     int thread_id = *(int *)arg;
-    //char * dataset_dir="/home/hamid/dataset/data-copy";
-    //cpu_set_t cpuset;
-    //int ret;
-    //// Get the CPU affinity mask of the current thread
-    //ret = pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
-    //if (ret != 0) {
-    //    printf("Error: pthread_getaffinity_np failed\n");
-    //    return NULL;
-    //}
-
-    //// Determine the socket ID based on the CPU affinity mask
-    //int socket_id = -1;
-    //for (int cpu = 0; cpu < CPU_SETSIZE; cpu++) {
-    //    if (CPU_ISSET(cpu, &cpuset)) {
-    //        // Check the CPU's socket ID
-    //        // Here we assume that the socket ID is the first digit of the CPU ID
-    //        socket_id = cpu / 10;
-    //        break;
-    //    }
-    //}
-
-
     FILE *input_file = NULL;
     char *line1 = NULL, *line2 = NULL;
     int line1_length=0, line2_length=0;
@@ -223,11 +201,6 @@ void *align(void *arg)
     // Init
     //timer_restart(&(parameters.timer_global));
     input_file = fopen(parameters.input, "r");
-    //if (thread_id %2 == 0) 
-    //   input_file = fopen(parameters.input, "r");
-    //else 
-    //   input_file = fopen(dataset_dir, "r"); 
-
     if (input_file==NULL) {
       fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
       exit(1);
@@ -281,13 +254,20 @@ void *align(void *arg)
            parameters.min_wavefront_length,
            parameters.max_distance_threshold);
        reads_processed += 1;
-       //if (thread_id == 4) printf("number of reads processed %d\n", reads_processed);
        current_line+=2;
     } //while
 
+    if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
+      //const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
+      benchmark_print_stats(stderr,&align_input,true);
+    }
+
+
     fclose(input_file);
     mm_allocator_delete(align_input.mm_allocator);
-    printf("Thread %d is running \n", thread_id);
+    free(line1);
+    free(line2);
+    //printf("Thread %d is running \n", thread_id);
     return NULL;
 }
 
