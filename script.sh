@@ -30,8 +30,18 @@ program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1" 
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa-adaptive -g "-1,1,1,1"
 
 #start=`date +%s.%N`
-sudo perf record -e cycles $program
-sudo perf report
+#sudo perf record -e cycles $program
+#sudo perf report
+
+
+#strace -f -e file -T -o strace.out $program 
+
+#sudo perf record -e 'sched:sched_stat_wait' $program
+#sudo perf report
+
+
+#$program
+valgrind --tool=helgrind $program
 
 #end=`date +%s.%N`
 #echo "$end - $start" | bc -l 

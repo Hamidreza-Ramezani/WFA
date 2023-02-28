@@ -29,6 +29,10 @@
  * DESCRIPTION: Wavefront Alignments Algorithms benchmarking tool
  */
 
+
+
+#define _GNU_SOURCE
+
 #include "utils/commons.h"
 #include "system/profiler_timer.h"
 
@@ -44,6 +48,7 @@
 
 #include <pthread.h>
 #include <time.h>
+#include <sched.h>
 
 #define MAX_LINE 10000000
 
@@ -188,14 +193,41 @@ double what_time_is_it()
 void *align(void *arg)
 {
     int thread_id = *(int *)arg;
+    //char * dataset_dir="/home/hamid/dataset/data-copy";
+    //cpu_set_t cpuset;
+    //int ret;
+    //// Get the CPU affinity mask of the current thread
+    //ret = pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+    //if (ret != 0) {
+    //    printf("Error: pthread_getaffinity_np failed\n");
+    //    return NULL;
+    //}
+
+    //// Determine the socket ID based on the CPU affinity mask
+    //int socket_id = -1;
+    //for (int cpu = 0; cpu < CPU_SETSIZE; cpu++) {
+    //    if (CPU_ISSET(cpu, &cpuset)) {
+    //        // Check the CPU's socket ID
+    //        // Here we assume that the socket ID is the first digit of the CPU ID
+    //        socket_id = cpu / 10;
+    //        break;
+    //    }
+    //}
+
+
     FILE *input_file = NULL;
     char *line1 = NULL, *line2 = NULL;
     int line1_length=0, line2_length=0;
     size_t line1_size=0, line2_size=0;
     align_input_t align_input;
     // Init
-    timer_restart(&(parameters.timer_global));
+    //timer_restart(&(parameters.timer_global));
     input_file = fopen(parameters.input, "r");
+    //if (thread_id %2 == 0) 
+    //   input_file = fopen(parameters.input, "r");
+    //else 
+    //   input_file = fopen(dataset_dir, "r"); 
+
     if (input_file==NULL) {
       fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
       exit(1);
@@ -253,10 +285,9 @@ void *align(void *arg)
        current_line+=2;
     } //while
 
-
-
     fclose(input_file);
-    printf("my id is %d\n", thread_id);
+    mm_allocator_delete(align_input.mm_allocator);
+    printf("Thread %d is running \n", thread_id);
     return NULL;
 }
 
