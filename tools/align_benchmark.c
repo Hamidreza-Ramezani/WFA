@@ -52,7 +52,7 @@
 
 #define MAX_LINE 10000000
 
-#define NUM_THREADS 80
+#define NUM_THREADS 40
 
 
 /*
@@ -199,7 +199,6 @@ void *align(void *arg)
     size_t line1_size=0, line2_size=0;
     align_input_t align_input;
     // Init
-    //timer_restart(&(parameters.timer_global));
     input_file = fopen(parameters.input, "r");
     if (input_file==NULL) {
       fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
@@ -216,9 +215,8 @@ void *align(void *arg)
     align_input.check_bandwidth = parameters.check_bandwidth;
     align_input.verbose = parameters.verbose;
     align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
-    timer_reset(&align_input.timer);
     // Read-align loop
-    int reads_processed = 0;
+    //int reads_processed = 0;
     int num_lines = 10000000;
 
     // Calculate the start and end positions for this thread
@@ -230,11 +228,11 @@ void *align(void *arg)
     if (thread_id == NUM_THREADS - 1) {
         end_line = num_lines - 1;
     }
-
     int current_line = start_line;
-    fseek(input_file, start_line, SEEK_SET);
+    fseek(input_file, start_line*102, SEEK_SET);
     //printf("my id is %d\n", thread_id);
 
+    timer_reset(&align_input.timer);
     // Read the portion of the file
     while (current_line <= end_line) {
        // Read queries
@@ -242,7 +240,7 @@ void *align(void *arg)
        line2_length = getline(&line2, &line2_size, input_file);
        if (line1_length == -1 || line2_length == -1) break;
        // Configure input
-       align_input.sequence_id = reads_processed;
+       //align_input.sequence_id = reads_processed;
        align_input.pattern = line1+1;
        align_input.pattern_length = line1_length-2;
        align_input.pattern[align_input.pattern_length] = '\0';
@@ -253,7 +251,7 @@ void *align(void *arg)
            &align_input,&parameters.affine_penalties,
            parameters.min_wavefront_length,
            parameters.max_distance_threshold);
-       reads_processed += 1;
+       //reads_processed += 1;
        current_line+=2;
     } //while
 
@@ -262,7 +260,8 @@ void *align(void *arg)
       benchmark_print_stats(stderr,&align_input,true);
     }
 
-
+    fprintf(stderr,"  => Time.Alignment    ");
+    timer_print(stderr,&align_input.timer,&parameters.timer_global);
     fclose(input_file);
     mm_allocator_delete(align_input.mm_allocator);
     free(line1);
@@ -278,6 +277,7 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     int thread_ids[NUM_THREADS];
     double time = what_time_is_it();
 
+    timer_restart(&(parameters.timer_global));
     // Create the threads
     for (int i = 0; i < NUM_THREADS; i++) {
         thread_ids[i] = i;
@@ -288,7 +288,9 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     for (int i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-    fprintf(stderr,"  => Time.Alignment  %f \n", what_time_is_it() - time);
+
+    timer_stop(&(parameters.timer_global));
+    fprintf(stderr,"  => Time.Benchmark  %f \n", what_time_is_it() - time);
 
     // Print the word count
 }
@@ -360,6 +362,7 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
 //            parameters.min_wavefront_length,
 //            parameters.max_distance_threshold);
 //        break;
+//        printf("line1_length %d\n", line1_length);
 //      default:
 //        fprintf(stderr,"Algorithm unknown or not implemented\n");
 //        exit(1);
