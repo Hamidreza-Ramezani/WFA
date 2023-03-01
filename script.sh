@@ -6,7 +6,7 @@ l2=150
 l3=250
 
 
-dataset_path="/home/hamid/dataset"
+dataset_path="/home/ubuntu/dataset"
 pairs_count="5M"
 distance="e1"
 data1="ERR240727"
