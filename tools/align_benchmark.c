@@ -52,7 +52,7 @@
 
 #define MAX_LINE 10000000
 
-#define NUM_THREADS 32
+#define NUM_THREADS 48
 
 
 /*
