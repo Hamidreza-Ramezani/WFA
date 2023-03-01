@@ -232,7 +232,7 @@ void *align(void *arg)
     fseek(input_file, start_line*102, SEEK_SET);
     //printf("my id is %d\n", thread_id);
 
-    timer_reset(&align_input.timer);
+    //timer_reset(&align_input.timer);
     // Read the portion of the file
     while (current_line <= end_line) {
        // Read queries
@@ -260,8 +260,8 @@ void *align(void *arg)
       benchmark_print_stats(stderr,&align_input,true);
     }
 
-    fprintf(stderr,"  => Time.Alignment    ");
-    timer_print(stderr,&align_input.timer,&parameters.timer_global);
+    //fprintf(stderr,"  => Time.Alignment    ");
+    //timer_print(stderr,&align_input.timer,&parameters.timer_global);
     fclose(input_file);
     mm_allocator_delete(align_input.mm_allocator);
     free(line1);
@@ -275,7 +275,7 @@ void *align(void *arg)
 void align_benchmark(const alg_algorithm_type alg_algorithm) {
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];
-    double time = what_time_is_it();
+    //double time = what_time_is_it();
 
     timer_restart(&(parameters.timer_global));
     // Create the threads
@@ -290,8 +290,8 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     }
 
     timer_stop(&(parameters.timer_global));
-    fprintf(stderr,"  => Time.Benchmark  %f \n", what_time_is_it() - time);
-
+    //fprintf(stderr,"  => Time.Benchmark  %f \n", what_time_is_it() - time);
+    timer_print(stderr,&parameters.timer_global,NULL);
     // Print the word count
 }
 

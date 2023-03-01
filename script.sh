@@ -40,9 +40,8 @@ program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1""
 #sudo perf report
 
 
-$program --check
-#valgrind --tool=helgrind $program
-
+#start=`date +%s.%N`
+$program
 #end=`date +%s.%N`
 #echo "$end - $start" | bc -l 
 
