@@ -52,7 +52,7 @@
 
 #define MAX_LINE 10000000
 
-#define NUM_THREADS 48
+#define NUM_THREADS 40
 
 
 /*
@@ -216,7 +216,7 @@ void *align(void *arg)
     align_input.verbose = parameters.verbose;
     align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
     // Read-align loop
-    //int reads_processed = 0;
+    int reads_processed = 0;
     int num_lines = 10000000;
 
     // Calculate the start and end positions for this thread
@@ -251,7 +251,7 @@ void *align(void *arg)
            &align_input,&parameters.affine_penalties,
            parameters.min_wavefront_length,
            parameters.max_distance_threshold);
-       //reads_processed += 1;
+       reads_processed += 1;
        current_line+=2;
     } //while
 
@@ -378,8 +378,7 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
 //      const float rate_global = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_global);
 //      const uint64_t time_elapsed_alg = timer_elapsed_ns(&(align_input.timer));
 //      const float rate_alg = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_alg);
-//      fprintf(stderr,"...processed %d reads (benchmark=%2.3f reads/s;alignment=%2.3f reads/s)\n",
-//          reads_processed,rate_global,rate_alg);
+//      //fprintf(stderr,"...processed %d reads (benchmark=%2.3f reads/s;alignment=%2.3f reads/s)\n",reads_processed,rate_global,rate_alg);
 //    }
 //  } //while
 //
