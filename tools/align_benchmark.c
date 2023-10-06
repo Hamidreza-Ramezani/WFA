@@ -189,10 +189,17 @@ double what_time_is_it()
     return now.tv_sec + now.tv_nsec*1e-9;
 }
 
+typedef struct {
+    long fileSize;
+    int threadID;
+} ThreadArgs;
 
-void *align(void *arg)
+void *align(void *args)
 {
-    int thread_id = *(int *)arg;
+    //int thread_id = *(int *)args;
+    ThreadArgs *thread_args = (ThreadArgs *)args;
+    int thread_id = thread_args->threadID;
+    printf("thread id %d\n", thread_id);
     FILE *input_file = NULL;
     char *line1 = NULL, *line2 = NULL;
     int line1_length=0, line2_length=0;
@@ -217,24 +224,50 @@ void *align(void *arg)
     align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
     // Read-align loop
     int reads_processed = 0;
-    int num_lines = 10000000;
+    //int num_lines = 10000000;
+    long file_size = thread_args->fileSize;
 
     // Calculate the start and end positions for this thread
-    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
-    int start_line = thread_id * lines_per_thread;
-    int end_line = (thread_id + 1) * lines_per_thread - 1;
+    //int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
+    long bytes_per_thread = (file_size + NUM_THREADS - 1) / NUM_THREADS;
+    //int start_line = thread_id * lines_per_thread;
+    long start_byte = thread_id * bytes_per_thread;
+    //int end_line = (thread_id + 1) * lines_per_thread - 1;
+    long end_byte = (thread_id + 1) * bytes_per_thread - 1;
 
     // If this is the last thread, include the remaining lines
     if (thread_id == NUM_THREADS - 1) {
-        end_line = num_lines - 1;
+        //end_line = num_lines - 1;
+        end_byte = file_size;
+        //printf("FileSize is %ld\n", thread_args->fileSize);
     }
-    int current_line = start_line;
-    fseek(input_file, start_line*102, SEEK_SET);
+    //int current_line = start_line;
+    long current_byte = start_byte;
+    //char line[550];
+    //fseek(input_file, start_line*102, SEEK_SET);
+    fseek(input_file, end_byte, SEEK_SET);
+    line1_length = getline(&line1, &line1_size, input_file);
+    if (line1[0] == '>') {
+        end_byte = ftell(input_file) - (line1_length+5);
+        printf("end_byte is %ld\n", end_byte);
+    }
+    fseek(input_file, start_byte, SEEK_SET);
+    line1_length = getline(&line1, &line1_size, input_file);
+    //printf("thread id %d\n", thread_id);
+    //printf("thread id %d line1 is %s\n", thread_id, line1);
+    if (line1[0] == '>') {
+        //printf("line1 length is %ld\n", line1_size);
+        fseek(input_file, start_byte, SEEK_SET);
+    } else if (line1[0] == '<') {
+        //printf("line1 length is %ld\n", line1_size);
+        current_byte = ftell(input_file);
+    }
     //printf("my id is %d\n", thread_id);
 
     //timer_reset(&align_input.timer);
     // Read the portion of the file
-    while (current_line <= end_line) {
+    //while (current_line <= end_line) {
+    while (current_byte <= end_byte) {
        // Read queries
        line1_length = getline(&line1, &line1_size, input_file);
        line2_length = getline(&line2, &line2_size, input_file);
@@ -252,7 +285,8 @@ void *align(void *arg)
            parameters.min_wavefront_length,
            parameters.max_distance_threshold);
        reads_processed += 1;
-       current_line+=2;
+       //current_line+=2;
+       current_byte = ftell(input_file);
     } //while
 
     if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
@@ -274,14 +308,24 @@ void *align(void *arg)
 
 void align_benchmark(const alg_algorithm_type alg_algorithm) {
     pthread_t threads[NUM_THREADS];
-    int thread_ids[NUM_THREADS];
+    //int thread_ids[NUM_THREADS];
     //double time = what_time_is_it();
+
+    FILE *input_file = NULL;
+    input_file = fopen(parameters.input, "r");
+    fseek(input_file, 0, SEEK_END);
+    long file_size = ftell(input_file);
+    rewind(input_file);
+    ThreadArgs args;
+    args.fileSize = file_size;
+
 
     timer_restart(&(parameters.timer_global));
     // Create the threads
     for (int i = 0; i < NUM_THREADS; i++) {
-        thread_ids[i] = i;
-        pthread_create(&threads[i], NULL, align, &thread_ids[i]);
+        //thread_ids[i] = i;
+        args.threadID = i;
+        pthread_create(&threads[i], NULL, align, &args);
     }
 
     // Wait for the threads to finish
