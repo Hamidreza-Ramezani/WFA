@@ -54,6 +54,7 @@
 
 #define NUM_THREADS 40
 
+long file_size;
 
 /*
  * Algorithms
@@ -189,17 +190,18 @@ double what_time_is_it()
     return now.tv_sec + now.tv_nsec*1e-9;
 }
 
-typedef struct {
+struct ThreadArgs{
+    int* threadID;
     long fileSize;
-    int threadID;
-} ThreadArgs;
+};
 
 void *align(void *args)
 {
-    //int thread_id = *(int *)args;
-    ThreadArgs *thread_args = (ThreadArgs *)args;
-    int thread_id = thread_args->threadID;
-    printf("thread id %d\n", thread_id);
+    int thread_id = *(int *)args;
+    //struct ThreadArgs *thread_args = (struct ThreadArgs *)args;
+    //ThreadArgs *thread_args = (ThreadArgs *)args;
+    //int thread_id = *(thread_args->threadID);
+    //printf("thread id is %d and filesize is %ld\n", thread_id, file_size);
     FILE *input_file = NULL;
     char *line1 = NULL, *line2 = NULL;
     int line1_length=0, line2_length=0;
@@ -225,7 +227,7 @@ void *align(void *args)
     // Read-align loop
     int reads_processed = 0;
     //int num_lines = 10000000;
-    long file_size = thread_args->fileSize;
+    //long file_size = thread_args->fileSize;
 
     // Calculate the start and end positions for this thread
     //int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
@@ -256,7 +258,7 @@ void *align(void *args)
     //printf("thread id %d\n", thread_id);
     //printf("thread id %d line1 is %s\n", thread_id, line1);
     if (line1[0] == '>') {
-        //printf("line1 length is %ld\n", line1_size);
+        printf("line1 length is %ld\n", line1_size);
         fseek(input_file, start_byte, SEEK_SET);
     } else if (line1[0] == '<') {
         //printf("line1 length is %ld\n", line1_size);
@@ -308,24 +310,25 @@ void *align(void *args)
 
 void align_benchmark(const alg_algorithm_type alg_algorithm) {
     pthread_t threads[NUM_THREADS];
-    //int thread_ids[NUM_THREADS];
+    int thread_ids[NUM_THREADS];
     //double time = what_time_is_it();
 
     FILE *input_file = NULL;
     input_file = fopen(parameters.input, "r");
     fseek(input_file, 0, SEEK_END);
-    long file_size = ftell(input_file);
+    file_size = ftell(input_file);
     rewind(input_file);
-    ThreadArgs args;
-    args.fileSize = file_size;
+    //struct ThreadArgs args;
+    //args.fileSize = file_size;
 
 
     timer_restart(&(parameters.timer_global));
     // Create the threads
     for (int i = 0; i < NUM_THREADS; i++) {
-        //thread_ids[i] = i;
-        args.threadID = i;
-        pthread_create(&threads[i], NULL, align, &args);
+        thread_ids[i] = i;
+        //args.threadID = &thread_ids[i];
+        //pthread_create(&threads[i], NULL, align, &args);
+        pthread_create(&threads[i], NULL, align, &thread_ids[i]);
     }
 
     // Wait for the threads to finish
