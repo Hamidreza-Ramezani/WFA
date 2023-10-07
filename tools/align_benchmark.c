@@ -195,6 +195,22 @@ struct ThreadArgs{
     long fileSize;
 };
 
+int moveFilePointerBackwardToBeginingOfLine(FILE *file) {
+    while (true) {
+        char c = fgetc(file);
+        if (c == '>') {
+            fseek(file, -1, SEEK_CUR);
+            return 0;
+        } else if (c == '<') {
+            fseek(file, -1, SEEK_CUR);
+            return 1;
+        }
+        fseek(file, -2, SEEK_CUR);
+    }
+}
+
+
+
 void *align(void *args)
 {
     int thread_id = *(int *)args;
@@ -248,22 +264,23 @@ void *align(void *args)
     //char line[550];
     //fseek(input_file, start_line*102, SEEK_SET);
     fseek(input_file, end_byte, SEEK_SET);
-    line1_length = getline(&line1, &line1_size, input_file);
-    if (line1[0] == '>') {
-        end_byte = ftell(input_file) - (line1_length+5);
-        printf("end_byte is %ld\n", end_byte);
+    if (moveFilePointerBackwardToBeginingOfLine(input_file) == 0) {
+        fseek(input_file, -1, SEEK_CUR);
+        moveFilePointerBackwardToBeginingOfLine(input_file);
+        //end_byte = ftell(input_file);
+        //printf("end_byte is %ld\n", end_byte);
     }
+    end_byte = ftell(input_file);
     fseek(input_file, start_byte, SEEK_SET);
-    line1_length = getline(&line1, &line1_size, input_file);
+    //line1_length = getline(&line1, &line1_size, input_file);
     //printf("thread id %d\n", thread_id);
     //printf("thread id %d line1 is %s\n", thread_id, line1);
-    if (line1[0] == '>') {
-        printf("line1 length is %ld\n", line1_size);
-        fseek(input_file, start_byte, SEEK_SET);
-    } else if (line1[0] == '<') {
+    if (moveFilePointerBackwardToBeginingOfLine(input_file) == 1) {
         //printf("line1 length is %ld\n", line1_size);
-        current_byte = ftell(input_file);
+        getline(&line1, &line1_size, input_file);
+        //fseek(input_file, start_byte, SEEK_SET);
     }
+    start_byte = ftell(input_file);
     //printf("my id is %d\n", thread_id);
 
     //timer_reset(&align_input.timer);
