@@ -195,6 +195,41 @@ struct ThreadArgs{
     long fileSize;
 };
 
+int getNumberOfLines(char *inputString) {
+    char *delimiter = "-";
+    char *firstDash = strstr(inputString, delimiter);
+    char *secondDash = strstr(firstDash + 1, delimiter);
+    char *thirdDash = strstr(secondDash + 1, delimiter);
+    int value = atoi(thirdDash + 1);
+    if (value == 5) {
+      value = 10;
+    }
+    return value * 1000000;
+}
+
+
+int getSecondTokenAsInt(char *inputString) {
+    char *delimiter = "-";
+    char *firstDash = strstr(inputString, delimiter);
+
+    if (firstDash != NULL) {
+        char *secondDash = strstr(firstDash + 1, delimiter);
+        if (secondDash != NULL) {
+            size_t length = secondDash - (firstDash + 1);
+            char *result = malloc(length + 1);
+            if (result != NULL) {
+                strncpy(result, firstDash + 1, length);
+                result[length] = '\0';
+                int intValue = atoi(result+1);
+                free(result);
+                return intValue;
+            }
+        }
+    }
+
+    return 0; // Return 0 if there's no valid second token
+}
+
 int moveFilePointerBackwardToBeginingOfLine(FILE *file) {
     while (true) {
         char c = fgetc(file);
@@ -242,15 +277,14 @@ void *align(void *args)
     align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
     // Read-align loop
     int reads_processed = 0;
-    //int num_lines = 10000000;
-    //long file_size = thread_args->fileSize;
-
-    // Calculate the start and end positions for this thread
+    //int seq_length = getSecondTokenAsInt(parameters.input);
+    //int num_lines = getNumberOfLines(parameters.input);
+    //long file_size = num_lines * seq_length;
     //int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
-    long bytes_per_thread = (file_size + NUM_THREADS - 1) / NUM_THREADS;
     //int start_line = thread_id * lines_per_thread;
-    long start_byte = thread_id * bytes_per_thread;
     //int end_line = (thread_id + 1) * lines_per_thread - 1;
+    long bytes_per_thread = (file_size + NUM_THREADS - 1) / NUM_THREADS;
+    long start_byte = thread_id * bytes_per_thread;
     long end_byte = (thread_id + 1) * bytes_per_thread - 1;
 
     // If this is the last thread, include the remaining lines
@@ -277,7 +311,7 @@ void *align(void *args)
     //printf("thread id %d line1 is %s\n", thread_id, line1);
     if (moveFilePointerBackwardToBeginingOfLine(input_file) == 1) {
         //printf("line1 length is %ld\n", line1_size);
-        getline(&line1, &line1_size, input_file);
+        line1_length = getline(&line1, &line1_size, input_file);
         //fseek(input_file, start_byte, SEEK_SET);
     }
     start_byte = ftell(input_file);
@@ -334,7 +368,7 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     input_file = fopen(parameters.input, "r");
     fseek(input_file, 0, SEEK_END);
     file_size = ftell(input_file);
-    rewind(input_file);
+    //rewind(input_file);
     //struct ThreadArgs args;
     //args.fileSize = file_size;
 
