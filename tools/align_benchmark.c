@@ -483,12 +483,12 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
 //
 //  timer_stop(&(parameters.timer_global));
 //  // Print benchmark results
-//  fprintf(stderr,"[Benchmark]\n");
-//  fprintf(stderr,"=> Total.reads            %d\n",reads_processed);
+//  //fprintf(stderr,"[Benchmark]\n");
+//  //fprintf(stderr,"=> Total.reads            %d\n",reads_processed);
 //  fprintf(stderr,"=> Time.Benchmark      ");
 //  timer_print(stderr,&parameters.timer_global,NULL);
-//  fprintf(stderr,"  => Time.Alignment    ");
-//  timer_print(stderr,&align_input.timer,&parameters.timer_global);
+//  //fprintf(stderr,"  => Time.Alignment    ");
+//  //timer_print(stderr,&align_input.timer,&parameters.timer_global);
 //  // Print Stats
 //  if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
 //    const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
