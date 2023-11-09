@@ -200,10 +200,10 @@ void *align(void *arg)
     align_input_t align_input;
     // Init
     input_file = fopen(parameters.input, "r");
-    if (input_file==NULL) {
-      fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
-      exit(1);
-    }
+    //if (input_file==NULL) {
+    //  fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
+    //  exit(1);
+    //}
     benchmark_align_input_clear(&align_input);
     align_input.debug_flags = 0;
     align_input.debug_flags |= parameters.check_metric;
@@ -216,7 +216,7 @@ void *align(void *arg)
     align_input.verbose = parameters.verbose;
     align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
     // Read-align loop
-    int reads_processed = 0;
+    //int reads_processed = 0;
     int num_lines = 10000000;
 
     // Calculate the start and end positions for this thread
@@ -251,7 +251,7 @@ void *align(void *arg)
            &align_input,&parameters.affine_penalties,
            parameters.min_wavefront_length,
            parameters.max_distance_threshold);
-       reads_processed += 1;
+       //reads_processed += 1;
        current_line+=2;
     } //while
 
@@ -266,7 +266,6 @@ void *align(void *arg)
     mm_allocator_delete(align_input.mm_allocator);
     free(line1);
     free(line2);
-    //printf("Thread %d is running \n", thread_id);
     return NULL;
 }
 
