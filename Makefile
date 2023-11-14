@@ -9,8 +9,9 @@ UNAME=$(shell uname)
 CC=gcc
 CPP=g++
 
-LD_FLAGS=-lm
-CC_FLAGS=-Wall -g -fPIC -fopenmp -lpthread
+#LD_FLAGS=-lm -fopenmp -lpthread -DLIKWID_PERFMON -I/usr/local/include -L/usr/local/lib -llikwid
+LD_FLAGS=-lm  -lpthread 
+CC_FLAGS=-Wall -g -fPIC 
 ifeq ($(UNAME), Linux)
   LD_FLAGS+=-lrt 
 endif
