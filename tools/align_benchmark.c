@@ -50,18 +50,18 @@
 #include <time.h>
 #include <sched.h>
 
-#ifdef LIKWID_PERFMON
-#include <likwid-marker.h>
-#else
-#define LIKWID_MARKER_INIT
-#define LIKWID_MARKER_THREADINIT
-#define LIKWID_MARKER_SWITCH
-#define LIKWID_MARKER_REGISTER(regionTag)
-#define LIKWID_MARKER_START(regionTag)
-#define LIKWID_MARKER_STOP(regionTag)
-#define LIKWID_MARKER_CLOSE
-#define LIKWID_MARKER_GET(regionTag, nevents, events, time, count)
-#endif
+//#ifdef LIKWID_PERFMON
+//#include <likwid-marker.h>
+//#else
+//#define LIKWID_MARKER_INIT
+//#define LIKWID_MARKER_THREADINIT
+//#define LIKWID_MARKER_SWITCH
+//#define LIKWID_MARKER_REGISTER(regionTag)
+//#define LIKWID_MARKER_START(regionTag)
+//#define LIKWID_MARKER_STOP(regionTag)
+//#define LIKWID_MARKER_CLOSE
+//#define LIKWID_MARKER_GET(regionTag, nevents, events, time, count)
+//#endif
 
 
 #define MAX_LINE 10000000
@@ -596,7 +596,7 @@ void parse_arguments(int argc,char** argv) {
   }
 }
 int main(int argc,char* argv[]) {
-  LIKWID_MARKER_INIT;
+  //LIKWID_MARKER_INIT;
   // Parsing command-line options
   parse_arguments(argc,argv);
   // Select option
@@ -627,7 +627,7 @@ int main(int argc,char* argv[]) {
     fprintf(stderr,"Algorithm '%s' not recognized\n",parameters.algorithm);
     exit(1);
   }
-  LIKWID_MARKER_CLOSE;
+  //LIKWID_MARKER_CLOSE;
 }
 
 
