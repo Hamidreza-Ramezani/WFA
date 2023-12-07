@@ -52,7 +52,7 @@
 
 #define MAX_LINE 10000000
 
-#define NUM_THREADS 40
+#define NUM_THREADS 64
 
 long file_size;
 
