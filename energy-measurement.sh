@@ -12,7 +12,7 @@ l7=10000
 user="hamid"
 dataset_path="/home/$user/dataset"
 pairs_count="5M"
-distance="e1"
+distance="e5"
 data1="ERR240727"
 data2="SRR826460"
 data3="SRR826471"
@@ -32,13 +32,13 @@ data_path7="${dataset_path}/${synthetic}-l${l7}-${distance}-${pairs_count}Pairs"
 #./bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "-1,1,1,1"
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg-banded --bandwidth 1
-program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1"" 
-#program="./bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "-1,1,1,1""
-#program="./bin/align_benchmark -i ${data_path3} -a gap-affine-wfa -g "-1,1,1,1""
-#program="./bin/align_benchmark -i ${data_path4} -a gap-affine-wfa -g "-1,1,1,1""
-#program="./bin/align_benchmark -i ${data_path5} -a gap-affine-wfa -g "-1,1,1,1""
-#program="./bin/align_benchmark -i ${data_path6} -a gap-affine-wfa-adaptive -g "-1,1,1,1""
-#program="./bin/align_benchmark -i ${data_path7} -a gap-affine-wfa-adaptive -g "-1,1,1,1""
+program1="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1"" 
+program2="./bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "-1,1,1,1""
+program3="./bin/align_benchmark -i ${data_path3} -a gap-affine-wfa -g "-1,1,1,1""
+program4="./bin/align_benchmark -i ${data_path4} -a gap-affine-wfa -g "-1,1,1,1""
+program5="./bin/align_benchmark -i ${data_path5} -a gap-affine-wfa -g "-1,1,1,1""
+program6="./bin/align_benchmark -i ${data_path6} -a gap-affine-wfa-adaptive -g "-1,1,1,1""
+program7="./bin/align_benchmark -i ${data_path7} -a gap-affine-wfa-adaptive -g "-1,1,1,1""
 
 
 #start=`date +%s.%N`
@@ -48,7 +48,9 @@ program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1""
 
 
 
-sudo perf stat -e power/energy-pkg/ $program
-sudo perf stat -e power/energy-cores/ $program
-sudo perf stat -e power/energy-ram/ $program
+sudo perf stat -e power/energy-pkg/,power/energy-ram/ $program1
+sudo perf stat -e power/energy-pkg/,power/energy-ram/ $program2
+sudo perf stat -e power/energy-pkg/,power/energy-ram/ $program3
+sudo perf stat -e power/energy-pkg/,power/energy-ram/ $program4
+sudo perf stat -e power/energy-pkg/,power/energy-ram/ $program5
 
