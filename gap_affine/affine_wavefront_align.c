@@ -400,11 +400,11 @@ void affine_wavefronts_align(
         affine_wavefronts,strings_padded->pattern_padded,pattern_length,
         strings_padded->text_padded,text_length,score);
     // DEBUG
-    //affine_wavefronts_debug_step(affine_wavefronts,pattern,text,score);
+    affine_wavefronts_debug_step(affine_wavefronts,pattern,text,score);
     WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_steps,1);
   }
   // DEBUG
-  //affine_wavefronts_debug_step(affine_wavefronts,pattern,text,score);
+  affine_wavefronts_debug_step(affine_wavefronts,pattern,text,score);
   WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_score,score); // STATS
   // Free
   strings_padded_delete(strings_padded);

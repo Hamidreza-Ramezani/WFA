@@ -170,8 +170,8 @@ void affine_wavefronts_debug_step(
     const int score) {
 #ifdef AFFINE_WAVEFRONT_DEBUG
 //  affine_table_print(stderr,&affine_wavefronts->gap_affine_table,pattern,text);
-//  affine_wavefronts_print_wavefronts_pretty(stderr,affine_wavefronts,score);
-//  affine_wavefronts_print_wavefronts(stderr,affine_wavefronts,score);
+  //affine_wavefronts_print_wavefronts_pretty(stderr,affine_wavefronts,score);
+  affine_wavefronts_print_wavefronts(stderr,affine_wavefronts,score);
 //  affine_wavefronts_print_wavefront(stderr,affine_wavefronts,score);
 //  affine_wavefronts_print_computation_stats(stderr,affine_wavefronts);
 #endif

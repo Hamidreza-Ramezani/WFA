@@ -46,7 +46,7 @@
 /*
  * Debug
  */
-//#define AFFINE_WAVEFRONT_DEBUG
+#define AFFINE_WAVEFRONT_DEBUG
 //#define AFFINE_WAVEFRONT_STATS
 
 /*
