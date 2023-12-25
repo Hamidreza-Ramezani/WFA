@@ -23,16 +23,23 @@ data_path3="${dataset_path}/${data3}-l${l3}-${distance}-${pairs_count}Pairs"
 data_path4="${dataset_path}/${synthetic}-l${l4}-${distance}-${pairs_count}Pairs" 
 data_path5="${dataset_path}/${synthetic}-l${l5}-${distance}-${pairs_count}Pairs" 
 
+
+data_path_dummy="${dataset_path}/dummy" 
+
 #./bin/align_benchmark -i ${data_path1} -a edit-dp
 #./bin/align_benchmark -i ${data_path1} -a edit-dp-banded --bandwidth 1
 #./bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "-1,1,1,1"
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg-banded --bandwidth 1
-program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1""
+#program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1""
 #program="./bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "-1,1,1,1""
 #program="./bin/align_benchmark -i ${data_path3} -a gap-affine-wfa -g "-1,1,1,1""
 #program="./bin/align_benchmark -i ${data_path4} -a gap-affine-wfa -g "-1,1,1,1""
 #program="./bin/align_benchmark -i ${data_path5} -a gap-affine-wfa -g "-1,1,1,1""
+
+
+
+program="./bin/align_benchmark -i ${data_path_dummy} -a gap-affine-wfa -g "-1,4,6,2""
 
 
 start=`date +%s.%N`
