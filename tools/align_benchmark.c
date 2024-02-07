@@ -310,7 +310,7 @@ void *align(void *args)
        align_input.text = line2+1;
        align_input.text_length = line2_length-2;
        align_input.text[align_input.text_length] = '\0';
-       benchmark_gap_lineal_nw(&align_input,&parameters.lineal_penalties);
+       benchmark_gap_affine_swg(&align_input,&parameters.affine_penalties);
        reads_processed += 1;
        //current_line+=2;
        current_byte = ftell(input_file);

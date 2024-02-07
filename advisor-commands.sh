@@ -21,12 +21,12 @@ data_path4="${dataset_path}/${synthetic}-l${l4}-${distance}-${pairs_count}Pairs"
 data_path5="${dataset_path}/${synthetic}-l${l5}-${distance}-${pairs_count}Pairs"
 data_path6="${dataset_path}/${synthetic}-l${l6}-${distance}-1MPairs"
 data_path7="${dataset_path}/${synthetic}-l${l7}-${distance}-1MPairs"
-results_dir="$HOME/E5-roofline-results/para-nw"
+results_dir="$HOME/E5-roofline-results/para-swg"
 
 
-advisor -collect survey -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "0,3,4,4"
-advisor -collect tripcounts -flop -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "0,3,4,4"
-advisor -collect map -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "0,3,4,4"
+advisor -collect survey -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-swg -g "-1,1,1,1"
+advisor -collect tripcounts -flop -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-swg -g "-1,1,1,1"
+advisor -collect map -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-swg -g "-1,1,1,1"
 
 
 #advisor -collect survey -project-dir "${results_dir}/l${l2}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "-1,1,1,1"
