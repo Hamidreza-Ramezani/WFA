@@ -32,7 +32,8 @@ data_path7="${dataset_path}/${synthetic}-l${l7}-${distance}-${pairs_count}Pairs"
 #./bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "-1,1,1,1"
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg
 #./bin/align_benchmark -i ${data_path1} -a gap-affine-swg-banded --bandwidth 1
-program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1"" 
+program="./bin/align_benchmark -i ${data_path1} -a gap-lineal-nw -p "0,3,4,4"" 
+#program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1"" 
 #program="./bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "-1,1,1,1""
 #program="./bin/align_benchmark -i ${data_path3} -a gap-affine-wfa -g "-1,1,1,1""
 #program="./bin/align_benchmark -i ${data_path4} -a gap-affine-wfa -g "-1,1,1,1""
@@ -43,8 +44,6 @@ program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "-1,1,1,1""
 
 start=`date +%s.%N`
 $program
-#valgrind --tool=cachegrind $program
-
 end=`date +%s.%N`
 echo "$end - $start" | bc -l 
 
