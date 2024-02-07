@@ -39,7 +39,8 @@ data_path_dummy="${dataset_path}/dummy"
 
 
 
-program="./bin/align_benchmark -i ${data_path_dummy} -a gap-affine-wfa -g "-1,4,6,2""
+#program="./bin/align_benchmark -i ${data_path_dummy} -a gap-affine-wfa -g "0,4,6,2""
+program="./bin/align_benchmark -i ${data_path_dummy} -a gap-affine-wfa -g "0,1,1,1""
 
 
 start=`date +%s.%N`

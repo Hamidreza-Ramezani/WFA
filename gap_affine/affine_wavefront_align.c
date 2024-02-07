@@ -303,7 +303,7 @@ void affine_wavefronts_compute_offsets_m(
 //}
 }
 /*
- * Compute wavefront
+ * Compute wavefront (next wavefront)
  */
 void affine_wavefronts_compute_wavefront(
     affine_wavefronts_t* const affine_wavefronts,
@@ -400,10 +400,12 @@ void affine_wavefronts_align(
         affine_wavefronts,strings_padded->pattern_padded,pattern_length,
         strings_padded->text_padded,text_length,score);
     // DEBUG
+    fprintf(stderr,"\n\nIteration %2d\n",score);
     affine_wavefronts_debug_step(affine_wavefronts,pattern,text,score);
     WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_steps,1);
   }
   // DEBUG
+  fprintf(stderr,"\n\nFinal state\n");
   affine_wavefronts_debug_step(affine_wavefronts,pattern,text,score);
   WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_score,score); // STATS
   // Free
