@@ -311,6 +311,7 @@ void *align(void *args)
        align_input.text_length = line2_length-2;
        align_input.text[align_input.text_length] = '\0';
        benchmark_gap_affine_swg(&align_input,&parameters.affine_penalties);
+       //benchmark_gap_affine_swg_banded(&align_input, &parameters.affine_penalties,parameters.bandwidth);
        reads_processed += 1;
        //current_line+=2;
        current_byte = ftell(input_file);
@@ -404,35 +405,37 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
 //    align_input.text_length = line2_length-2;
 //    align_input.text[align_input.text_length] = '\0';
 //    // Align queries using DP
-//    switch (alg_algorithm) {
-//      case alignment_edit_dp:
-//        benchmark_edit_dp(&align_input);
-//        break;
-//      case alignment_edit_dp_banded:
-//        benchmark_edit_dp_banded(&align_input,parameters.bandwidth);
-//        break;
-//      case alignment_gap_lineal_nw:
-//        benchmark_gap_lineal_nw(&align_input,&parameters.lineal_penalties);
-//        break;
-//      case alignment_gap_affine_swg:
-//        benchmark_gap_affine_swg(&align_input,&parameters.affine_penalties);
-//        break;
-//      case alignment_gap_affine_swg_banded:
-//        benchmark_gap_affine_swg_banded(&align_input,
-//            &parameters.affine_penalties,parameters.bandwidth);
-//        break;
-//      case alignment_gap_affine_wavefront:
-//        benchmark_gap_affine_wavefront(
-//            &align_input,&parameters.affine_penalties,
-//            parameters.min_wavefront_length,
-//            parameters.max_distance_threshold);
-//        break;
-//        printf("line1_length %d\n", line1_length);
-//      default:
-//        fprintf(stderr,"Algorithm unknown or not implemented\n");
-//        exit(1);
-//        break;
-//    }
+//    //switch (alg_algorithm) {
+//    //  case alignment_edit_dp:
+//    //    benchmark_edit_dp(&align_input);
+//    //    break;
+//    //  case alignment_edit_dp_banded:
+//    //    benchmark_edit_dp_banded(&align_input,parameters.bandwidth);
+//    //    break;
+//    //  case alignment_gap_lineal_nw:
+//    //    benchmark_gap_lineal_nw(&align_input,&parameters.lineal_penalties);
+//    //    break;
+//    //  case alignment_gap_affine_swg:
+//    //    benchmark_gap_affine_swg(&align_input,&parameters.affine_penalties);
+//    //    break;
+//    //  case alignment_gap_affine_swg_banded:
+//    //    benchmark_gap_affine_swg_banded(&align_input,
+//    //        &parameters.affine_penalties,parameters.bandwidth);
+//    //    break;
+//    //  case alignment_gap_affine_wavefront:
+//    //    benchmark_gap_affine_wavefront(
+//    //        &align_input,&parameters.affine_penalties,
+//    //        parameters.min_wavefront_length,
+//    //        parameters.max_distance_threshold);
+//    //    break;
+//    //    printf("line1_length %d\n", line1_length);
+//    //  default:
+//    //    fprintf(stderr,"Algorithm unknown or not implemented\n");
+//    //    exit(1);
+//    //    break;
+//    //}
+//
+//    benchmark_gap_affine_swg_banded(&align_input, &parameters.affine_penalties,parameters.bandwidth);
 //    // Update progress
 //    ++reads_processed;
 //    // DEBUG mm_allocator_print(stderr,align_input.mm_allocator,true);
