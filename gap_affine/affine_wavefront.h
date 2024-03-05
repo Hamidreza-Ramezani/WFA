@@ -66,8 +66,8 @@
 /*
  * Offset size
  */
-//#define AFFINE_WAVEFRONT_W8
-#define AFFINE_WAVEFRONT_W16
+#define AFFINE_WAVEFRONT_W8
+//#define AFFINE_WAVEFRONT_W16
 //#define AFFINE_WAVEFRONT_W32
 
 #ifdef AFFINE_WAVEFRONT_W8
