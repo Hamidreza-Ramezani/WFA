@@ -57,6 +57,7 @@
 #define NUM_THREADS 40
 
 long file_size;
+int num_lines;
 char **lines;
 
 /*
@@ -298,11 +299,11 @@ void *align(void *args)
     //start_byte = ftell(input_file);
 
     //int num_lines = 10000000;
-    int lines_per_thread = (MAX_LINES + NUM_THREADS - 1) / NUM_THREADS;
+    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
     int start_line = thread_id * lines_per_thread;
     int end_line = (thread_id + 1) * lines_per_thread - 1;
     if (thread_id == NUM_THREADS - 1) {
-        end_line = MAX_LINES - 1;
+        end_line = num_lines - 1;
     }
     int current_line = start_line;
 
@@ -369,7 +370,7 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
         lines[count++] = line;
         line = NULL; // getline will allocate a new buffer
     }
-
+    num_lines = count;
 
     timer_restart(&(parameters.timer_global));
     // Create the threads
