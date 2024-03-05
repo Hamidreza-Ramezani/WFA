@@ -348,7 +348,7 @@ void *align(void *args)
     }
 
     //fprintf(stderr,"  => Time.Alignment    ");
-    //timer_print(stderr,&align_input.timer,&parameters.timer_global);
+    timer_print(stderr,&align_input.timer,&parameters.timer_global);
     fclose(input_file);
     mm_allocator_delete(align_input.mm_allocator);
     free(line1);
