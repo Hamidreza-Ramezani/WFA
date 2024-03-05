@@ -283,6 +283,10 @@ void *align(void *args)
     //int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
     //int start_line = thread_id * lines_per_thread;
     //int end_line = (thread_id + 1) * lines_per_thread - 1;
+    FILE *fp;
+    char output[1024];
+
+    for (int i=0; i<3; i++) {
     long bytes_per_thread = (file_size + NUM_THREADS - 1) / NUM_THREADS;
     long start_byte = thread_id * bytes_per_thread;
     long end_byte = (thread_id + 1) * bytes_per_thread - 1;
@@ -315,11 +319,13 @@ void *align(void *args)
         //fseek(input_file, start_byte, SEEK_SET);
     }
     start_byte = ftell(input_file);
+    //current_byte = start_byte;
     //printf("my id is %d\n", thread_id);
 
     //timer_reset(&align_input.timer);
     // Read the portion of the file
     //while (current_line <= end_line) {
+
     while (current_byte <= end_byte) {
        // Read queries
        line1_length = getline(&line1, &line1_size, input_file);
@@ -341,6 +347,25 @@ void *align(void *args)
        //current_line+=2;
        current_byte = ftell(input_file);
     } //while
+    } //for
+    //fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain memory && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
+    //fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform", "r");
+    //fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain memory", "r");
+    fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
+    if (fp == NULL) {
+        perror("popen");
+        return 1;
+    }
+
+    while (fgets(output, sizeof(output), fp) != NULL) {
+        printf("%s", output);
+    }
+
+    if (pclose(fp) == -1) {
+        perror("pclose");
+        return 1;
+    }
+
 
     if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
       //const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
@@ -375,6 +400,8 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
 
     timer_restart(&(parameters.timer_global));
     // Create the threads
+    //FILE *fp;
+    //char output[1024];
     for (int i = 0; i < NUM_THREADS; i++) {
         thread_ids[i] = i;
         //args.threadID = &thread_ids[i];
