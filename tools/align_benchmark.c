@@ -249,10 +249,6 @@ int moveFilePointerBackwardToBeginingOfLine(FILE *file) {
 void *align(void *args)
 {
     int thread_id = *(int *)args;
-    //struct ThreadArgs *thread_args = (struct ThreadArgs *)args;
-    //ThreadArgs *thread_args = (ThreadArgs *)args;
-    //int thread_id = *(thread_args->threadID);
-    //printf("thread id is %d and filesize is %ld\n", thread_id, file_size);
     FILE *input_file = NULL;
     char *line1 = NULL, *line2 = NULL;
     int line1_length=0, line2_length=0;
@@ -277,49 +273,29 @@ void *align(void *args)
     align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
     // Read-align loop
     int reads_processed = 0;
-    //int seq_length = getSecondTokenAsInt(parameters.input);
-    //int num_lines = getNumberOfLines(parameters.input);
-    //long file_size = num_lines * seq_length;
-    //int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
-    //int start_line = thread_id * lines_per_thread;
-    //int end_line = (thread_id + 1) * lines_per_thread - 1;
     long bytes_per_thread = (file_size + NUM_THREADS - 1) / NUM_THREADS;
     long start_byte = thread_id * bytes_per_thread;
     long end_byte = (thread_id + 1) * bytes_per_thread - 1;
 
     // If this is the last thread, include the remaining lines
     if (thread_id == NUM_THREADS - 1) {
-        //end_line = num_lines - 1;
         end_byte = file_size;
-        //printf("FileSize is %ld\n", thread_args->fileSize);
     }
-    //int current_line = start_line;
     long current_byte = start_byte;
-    //char line[550];
-    //fseek(input_file, start_line*102, SEEK_SET);
     fseek(input_file, end_byte, SEEK_SET);
     if (moveFilePointerBackwardToBeginingOfLine(input_file) == 0) {
         fseek(input_file, -1, SEEK_CUR);
         moveFilePointerBackwardToBeginingOfLine(input_file);
-        //end_byte = ftell(input_file);
-        //printf("end_byte is %ld\n", end_byte);
     }
     end_byte = ftell(input_file);
     fseek(input_file, start_byte, SEEK_SET);
-    //line1_length = getline(&line1, &line1_size, input_file);
-    //printf("thread id %d\n", thread_id);
-    //printf("thread id %d line1 is %s\n", thread_id, line1);
     if (moveFilePointerBackwardToBeginingOfLine(input_file) == 1) {
-        //printf("line1 length is %ld\n", line1_size);
         line1_length = getline(&line1, &line1_size, input_file);
-        //fseek(input_file, start_byte, SEEK_SET);
     }
     start_byte = ftell(input_file);
-    //printf("my id is %d\n", thread_id);
 
     //timer_reset(&align_input.timer);
     // Read the portion of the file
-    //while (current_line <= end_line) {
     while (current_byte <= end_byte) {
        // Read queries
        line1_length = getline(&line1, &line1_size, input_file);
@@ -338,12 +314,10 @@ void *align(void *args)
            parameters.min_wavefront_length,
            parameters.max_distance_threshold);
        reads_processed += 1;
-       //current_line+=2;
        current_byte = ftell(input_file);
     } //while
 
     if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
-      //const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
       benchmark_print_stats(stderr,&align_input,true);
     }
 
@@ -353,11 +327,8 @@ void *align(void *args)
     mm_allocator_delete(align_input.mm_allocator);
     free(line1);
     free(line2);
-    //printf("Thread %d is running \n", thread_id);
     return NULL;
 }
-
-
 
 void align_benchmark(const alg_algorithm_type alg_algorithm) {
     pthread_t threads[NUM_THREADS];
@@ -368,17 +339,10 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     input_file = fopen(parameters.input, "r");
     fseek(input_file, 0, SEEK_END);
     file_size = ftell(input_file);
-    //rewind(input_file);
-    //struct ThreadArgs args;
-    //args.fileSize = file_size;
-
-
     timer_restart(&(parameters.timer_global));
     // Create the threads
     for (int i = 0; i < NUM_THREADS; i++) {
         thread_ids[i] = i;
-        //args.threadID = &thread_ids[i];
-        //pthread_create(&threads[i], NULL, align, &args);
         pthread_create(&threads[i], NULL, align, &thread_ids[i]);
     }
 
@@ -388,7 +352,6 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     }
 
     timer_stop(&(parameters.timer_global));
-    //fprintf(stderr,"  => Time.Benchmark  %f \n", what_time_is_it() - time);
     timer_print(stderr,&parameters.timer_global,NULL);
     // Print the word count
 }
