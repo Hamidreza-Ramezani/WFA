@@ -11,8 +11,8 @@ l7=10000
 
 user="hamid"
 dataset_path="/home/$user/dataset"
-pairs_count="1M"
-distance="e5"
+pairs_count="5M"
+distance="e1"
 data1="ERR240727"
 data2="SRR826460"
 data3="SRR826471"
@@ -43,8 +43,6 @@ program="./bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "0,3,4,1""
 
 start=`date +%s.%N`
 $program
-#valgrind --tool=cachegrind $program
-
 end=`date +%s.%N`
 echo "$end - $start" | bc -l 
 
