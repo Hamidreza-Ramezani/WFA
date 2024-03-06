@@ -37,8 +37,8 @@ data_path7="${dataset_path}/${synthetic}-l${l7}-${distance}-1MPairs"
 #program="./bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "0,3,4,1""
 #program="./bin/align_benchmark -i ${data_path3} -a gap-affine-wfa -g "0,3,4,1""
 #program="./bin/align_benchmark -i ${data_path4} -a gap-affine-wfa -g "0,3,4,1""
-#program="./bin/align_benchmark -i ${data_path5} -a gap-affine-wfa -g "0,3,4,1""
-program="./bin/align_benchmark -i ${data_path6} -a gap-affine-wfa-adaptive -g "0,3,4,1""
+program="./bin/align_benchmark -i ${data_path5} -a gap-affine-wfa -g "0,3,4,1""
+#program="./bin/align_benchmark -i ${data_path6} -a gap-affine-wfa-adaptive -g "0,3,4,1""
 #program="./bin/align_benchmark -i ${data_path7} -a gap-affine-wfa-adaptive -g "0,3,4,1""
 
 #$program1
