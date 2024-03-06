@@ -58,7 +58,7 @@
 
 long file_size;
 int num_lines;
-char **lines;
+//char **lines;
 
 /*
  * Algorithms
@@ -254,12 +254,16 @@ void *align(void *args)
 {
     //profiler_timer_t timer_IO;
     //timer_start(&timer_IO);
-    int thread_id = *(int *)args;
+    //int thread_id = *(int *)args;
+    //printf("my thread ID is %d\n", thread_id);
     //FILE *input_file = NULL;
     char *line1 = NULL, *line2 = NULL;
     int line1_length=0, line2_length=0;
     //size_t line1_size=0, line2_size=0;
     align_input_t align_input;
+    char **thread_data = (char **)args;
+    int thread_id = (int)(intptr_t)thread_data[0]; // Extract the thread ID
+    char **lines = thread_data + 1; // Skip the thread ID to get the lines array
     // Init
     //input_file = fopen(parameters.input, "r");
     //if (input_file==NULL) {
@@ -299,13 +303,16 @@ void *align(void *args)
     //    line1_length = getline(&line1, &line1_size, input_file);
     //}
     //start_byte = ftell(input_file);
-    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
+    int lines_per_thread = (MAX_LINES + NUM_THREADS - 1) / NUM_THREADS;
     int start_line = thread_id * lines_per_thread;
     int end_line = (thread_id + 1) * lines_per_thread - 1;
     if (thread_id == NUM_THREADS - 1) {
-        end_line = num_lines - 1;
+        end_line = MAX_LINES - 1;
     }
     int current_line = start_line;
+    //char **lines = (char **)args + 1; // Skip the thread ID to get the lines array
+
+    //printf("my thread ID is %d\n", thread_id);
     //timer_reset(&align_input.timer);
     // Read the portion of the file
     while (current_line <= end_line) {
@@ -317,8 +324,12 @@ void *align(void *args)
        //timer_pause(&timer_IO);
        // Configure input
        //align_input.sequence_id = reads_processed;
-       line1 = lines[current_line];
-       line2 = lines[current_line + 1];
+
+       //line1 = lines[current_line];
+       //line2 = lines[current_line + 1];
+       line1 = lines[current_line - start_line];
+       line2 = lines[current_line + 1 - start_line];
+       //printf("%s\n",line1);
        line1_length = strlen(line1);
        line2_length = strlen(line2);
        align_input.pattern = line1+1;
@@ -347,8 +358,8 @@ void *align(void *args)
     //timer_print(stderr,&align_input.timer,&parameters.timer_global);
     //fclose(input_file);
     //mm_allocator_delete(align_input.mm_allocator);
-    free(line1);
-    free(line2);
+    //free(line1);
+    //free(line2);
     return NULL;
 }
 
@@ -358,13 +369,14 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];
     //double time = what_time_is_it();
-
+    //int thread_args[NUM_THREADS][MAX_LINES / NUM_THREADS + 1];
+    char ***thread_args = malloc(NUM_THREADS * sizeof(char **));
     FILE *input_file = NULL;
     input_file = fopen(parameters.input, "r");
     //fseek(input_file, 0, SEEK_END);
     //file_size = ftell(input_file);
-    lines = malloc(MAX_LINES * sizeof(char *));
-    if (lines == NULL) {
+    char **all_lines = malloc(MAX_LINES * sizeof(char *));
+    if (all_lines == NULL) {
         perror("Memory allocation failed");
         fclose(input_file);
         return;
@@ -376,28 +388,45 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     int count = 0;
 
     while ((read = getline(&line, &len, input_file)) != -1) {
-        lines[count++] = line;
+        all_lines[count++] = line;
         line = NULL; // getline will allocate a new buffer
     }
     num_lines = count;
+
     //printf("numlines is %d\n", num_lines);
+    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
 
     timer_restart(&(parameters.timer_global));
     // Create the threads
     for (int i = 0; i < NUM_THREADS; i++) {
-        thread_ids[i] = i;
-        //args.threadID = &thread_ids[i];
-        //pthread_create(&threads[i], NULL, align, &args);
-        pthread_create(&threads[i], NULL, align, &thread_ids[i]);
+        //thread_ids[i] = i;
+        //pthread_create(&threads[i], NULL, align, &thread_ids[i]);
+        int start_line = i * lines_per_thread;
+        int end_line = (i + 1) * lines_per_thread - 1;
+        if (i == NUM_THREADS - 1) {
+            end_line = num_lines - 1;
+        }
+        //thread_args[i][0] = i; // First element is the thread ID
+        thread_args[i] = malloc((lines_per_thread + 1) * sizeof(char *));
+        thread_args[i][0] = (char *)(intptr_t)i; // Store the thread ID as the first element
+        for (int j = start_line; j <= end_line; j++) {
+            thread_args[i][j - start_line + 1] = all_lines[j];
+        }
+        pthread_create(&threads[i], NULL, align, thread_args[i]);
     }
 
     // Wait for the threads to finish
     for (int i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
+        free(thread_args[i]); // Free the thread's lines array
     }
+
     timer_stop(&(parameters.timer_global));
     timer_print(stderr,&parameters.timer_global,NULL);
-    free(lines); // Free the array of pointers
+    //free(lines); // Free the array of pointers
+
+    free(thread_args); // Free the array of thread arguments
+    //free(all_lines); // Free the array of pointers
     fclose(input_file);
 }
 
