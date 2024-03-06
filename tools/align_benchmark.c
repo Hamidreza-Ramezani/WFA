@@ -347,8 +347,8 @@ void *align(void *args)
     //timer_print(stderr,&align_input.timer,&parameters.timer_global);
     //fclose(input_file);
     //mm_allocator_delete(align_input.mm_allocator);
-    //free(line1);
-    //free(line2);
+    free(line1);
+    free(line2);
     return NULL;
 }
 
