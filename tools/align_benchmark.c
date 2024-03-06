@@ -52,7 +52,7 @@
 #include <sys/time.h>
 
 
-#define MAX_LINES 1000000
+#define MAX_LINES 10000000
 
 #define NUM_THREADS 64
 
@@ -380,7 +380,7 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
         line = NULL; // getline will allocate a new buffer
     }
     num_lines = count;
-    printf("numlines is %d\n", num_lines);
+    //printf("numlines is %d\n", num_lines);
 
     timer_restart(&(parameters.timer_global));
     // Create the threads
