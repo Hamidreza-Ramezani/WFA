@@ -320,13 +320,13 @@ void affine_wavefronts_compute_wavefront(
       wavefront_set.in_mwavefront_gap->null &&
       wavefront_set.in_iwavefront_ext->null &&
       wavefront_set.in_dwavefront_ext->null) {
-    WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_steps_null,1);
+    //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_steps_null,1);
     return;
   }
-  WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_mwavefront_sub->null?1:0));
-  WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_mwavefront_gap->null?1:0));
-  WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_iwavefront_ext->null?1:0));
-  WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_dwavefront_ext->null?1:0));
+  //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_mwavefront_sub->null?1:0));
+  //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_mwavefront_gap->null?1:0));
+  //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_iwavefront_ext->null?1:0));
+  //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_null_used,(wavefront_set.in_dwavefront_ext->null?1:0));
   // Set limits
   int hi, lo;
   affine_wavefronts_compute_limits(affine_wavefronts,&wavefront_set,score,&lo,&hi);
@@ -334,7 +334,7 @@ void affine_wavefronts_compute_wavefront(
   affine_wavefronts_allocate_wavefronts(affine_wavefronts,&wavefront_set,score,lo,hi);
   // Compute WF
   const int kernel = ((wavefront_set.out_iwavefront!=NULL) << 1) | (wavefront_set.out_dwavefront!=NULL);
-  WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_compute_kernel[kernel],1);
+  //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_compute_kernel[kernel],1);
   switch (kernel) {
     case 3: // 11b
       affine_wavefronts_compute_offsets_idm(affine_wavefronts,&wavefront_set,lo,hi);
@@ -350,7 +350,7 @@ void affine_wavefronts_compute_wavefront(
       break;
   }
   // Account for WF operations performed
-  WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_operations,hi-lo+1);
+  //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_operations,hi-lo+1);
   // DEBUG
 #ifdef AFFINE_WAVEFRONT_DEBUG
   // Copy offsets base before extension (for display purposes)

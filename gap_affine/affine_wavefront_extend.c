@@ -205,8 +205,8 @@ void affine_wavefronts_extend_mwavefront_compute_packed(
   }
   //}
   // DEBUG
-  affine_wavefronts_extend_mwavefront_epiloge(
-      affine_wavefronts,score,pattern_length,text_length);
+  //affine_wavefronts_extend_mwavefront_epiloge(
+  //    affine_wavefronts,score,pattern_length,text_length);
 }
 /*
  * Gap-Affine Wavefront exact extension

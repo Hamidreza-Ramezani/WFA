@@ -191,7 +191,7 @@ void affine_wavefronts_backtrace(
     const int text_length,
     const int alignment_score) {
   // STATS
-  WAVEFRONT_STATS_TIMER_START(affine_wavefronts,wf_time_backtrace);
+  //WAVEFRONT_STATS_TIMER_START(affine_wavefronts,wf_time_backtrace);
   // Parameters
   const affine_penalties_t* const wavefront_penalties =
       &(affine_wavefronts->penalties.wavefront_penalties);
@@ -301,5 +301,5 @@ void affine_wavefronts_backtrace(
   }
   ++(cigar->begin_offset); // Set CIGAR length
   // STATS
-  WAVEFRONT_STATS_TIMER_STOP(affine_wavefronts,wf_time_backtrace);
+  //WAVEFRONT_STATS_TIMER_STOP(affine_wavefronts,wf_time_backtrace);
 }
