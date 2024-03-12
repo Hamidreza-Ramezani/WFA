@@ -51,7 +51,6 @@
 #include <sched.h>
 #include <sys/time.h>
 
-
 #define MAX_LINES 10000000
 
 #define NUM_THREADS 64
@@ -303,11 +302,14 @@ void *align(void *args)
     //    line1_length = getline(&line1, &line1_size, input_file);
     //}
     //start_byte = ftell(input_file);
-    int lines_per_thread = (MAX_LINES + NUM_THREADS - 1) / NUM_THREADS;
+    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
+    if (lines_per_thread%2 == 1) {
+       lines_per_thread++;
+    }
     int start_line = thread_id * lines_per_thread;
     int end_line = (thread_id + 1) * lines_per_thread - 1;
     if (thread_id == NUM_THREADS - 1) {
-        end_line = MAX_LINES - 1;
+        end_line = num_lines - 1;
     }
     int current_line = start_line;
     //char **lines = (char **)args + 1; // Skip the thread ID to get the lines array
@@ -369,7 +371,6 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];
     //double time = what_time_is_it();
-    //int thread_args[NUM_THREADS][MAX_LINES / NUM_THREADS + 1];
     char ***thread_args = malloc(NUM_THREADS * sizeof(char **));
     FILE *input_file = NULL;
     input_file = fopen(parameters.input, "r");
@@ -395,7 +396,9 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
 
     //printf("numlines is %d\n", num_lines);
     int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
-
+    if (lines_per_thread%2 == 1) {
+       lines_per_thread++;
+    }
     timer_restart(&(parameters.timer_global));
     // Create the threads
     for (int i = 0; i < NUM_THREADS; i++) {
@@ -426,7 +429,7 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     //free(lines); // Free the array of pointers
 
     free(thread_args); // Free the array of thread arguments
-    //free(all_lines); // Free the array of pointers
+    free(all_lines); // Free the array of pointers
     fclose(input_file);
 }
 
