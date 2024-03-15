@@ -154,17 +154,17 @@ void affine_wavefronts_backtrace_matches__check(
   int i;
   for (i=0;i<num_matches;++i) {
     // DEBUG
-#ifdef AFFINE_WAVEFRONT_DEBUG
-    const int v = AFFINE_WAVEFRONT_V(k,offset);
-    const int h = AFFINE_WAVEFRONT_H(k,offset);
-    if (!valid_location) { // Check inside table
-      fprintf(stderr,"Backtrace error: Match outside DP-Table\n");
-      exit(1);
-    } else if (pattern[v-1] != text[h-1]) { // Check match
-      fprintf(stderr,"Backtrace error: Not a match traceback\n");
-      exit(1);
-    }
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//    const int v = AFFINE_WAVEFRONT_V(k,offset);
+//    const int h = AFFINE_WAVEFRONT_H(k,offset);
+//    if (!valid_location) { // Check inside table
+//      fprintf(stderr,"Backtrace error: Match outside DP-Table\n");
+//      exit(1);
+//    } else if (pattern[v-1] != text[h-1]) { // Check match
+//      fprintf(stderr,"Backtrace error: Not a match traceback\n");
+//      exit(1);
+//    }
+//#endif
     // Set Match
     edit_cigar->operations[(edit_cigar->begin_offset)--] = 'M';
     // Update state

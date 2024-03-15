@@ -130,19 +130,19 @@ void affine_wavefronts_extend_mwavefront_epiloge(
   WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_extensions,
       affine_wavefronts->mwavefronts[score]->hi-affine_wavefronts->mwavefronts[score]->lo+1);
   // DEBUG
-#ifdef AFFINE_WAVEFRONT_DEBUG
-  // Parameters
-  affine_wavefront_t* const mwavefront = affine_wavefronts->mwavefronts[score];
-  int k;
-  for (k=mwavefront->lo;k<=mwavefront->hi;++k) {
-    if (mwavefront->offsets[k] >= 0) {
-      awf_offset_t offset;
-      for (offset=mwavefront->offsets_base[k];offset<=mwavefront->offsets[k];++offset) {
-        affine_wavefronts_set_edit_table(affine_wavefronts,pattern_length,text_length,k,offset,score);
-      }
-    }
-  }
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//  // Parameters
+//  affine_wavefront_t* const mwavefront = affine_wavefronts->mwavefronts[score];
+//  int k;
+//  for (k=mwavefront->lo;k<=mwavefront->hi;++k) {
+//    if (mwavefront->offsets[k] >= 0) {
+//      awf_offset_t offset;
+//      for (offset=mwavefront->offsets_base[k];offset<=mwavefront->offsets[k];++offset) {
+//        affine_wavefronts_set_edit_table(affine_wavefronts,pattern_length,text_length,k,offset,score);
+//      }
+//    }
+//  }
+//#endif
 }
 void affine_wavefronts_extend_mwavefront_compute_packed(
     affine_wavefronts_t* const affine_wavefronts,

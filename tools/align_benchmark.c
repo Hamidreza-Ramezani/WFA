@@ -57,6 +57,7 @@
 
 long file_size;
 int num_lines;
+int *line_lengths;
 //char **lines;
 
 /*
@@ -334,6 +335,8 @@ void *align(void *args)
        //printf("%s\n",line1);
        line1_length = strlen(line1);
        line2_length = strlen(line2);
+       //line1_length = line_lengths[current_line - start_line];
+       //line2_length = line_lengths[current_line + 1 - start_line];
        align_input.pattern = line1+1;
        align_input.pattern_length = line1_length-2;
        align_input.pattern[align_input.pattern_length] = '\0';
@@ -386,9 +389,11 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     size_t len = 0;
     ssize_t read;
     char *line = NULL;
+    //line_lengths = malloc(MAX_LINES * sizeof(int));
     int count = 0;
 
     while ((read = getline(&line, &len, input_file)) != -1) {
+        //line_lengths[count] = read;
         all_lines[count++] = line;
         line = NULL; // getline will allocate a new buffer
     }
@@ -399,6 +404,8 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     if (lines_per_thread%2 == 1) {
        lines_per_thread++;
     }
+    //Struct timeval  tv1, tv2;
+    //Gettimeofday(&tv1, NULL);
     timer_restart(&(parameters.timer_global));
     // Create the threads
     for (int i = 0; i < NUM_THREADS; i++) {
@@ -421,13 +428,16 @@ void align_benchmark(const alg_algorithm_type alg_algorithm) {
     // Wait for the threads to finish
     for (int i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
-        free(thread_args[i]); // Free the thread's lines array
+        //free(thread_args[i]); // Free the thread's lines array
     }
 
     timer_stop(&(parameters.timer_global));
     timer_print(stderr,&parameters.timer_global,NULL);
-    //free(lines); // Free the array of pointers
-
+    //gettimeofday(&tv2, NULL);
+    //printf ("Total time = %f seconds\n",
+    //     (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+    //     (double) (tv2.tv_sec - tv1.tv_sec));
+    free(line_lengths);
     free(thread_args); // Free the array of thread arguments
     free(all_lines); // Free the array of pointers
     fclose(input_file);

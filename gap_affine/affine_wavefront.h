@@ -95,9 +95,9 @@ typedef struct {
   int hi_base;                // Highest diagonal before reduction (inclusive)
   // Offsets
   awf_offset_t* offsets;      // Offsets
-#ifdef AFFINE_WAVEFRONT_DEBUG
-  awf_offset_t* offsets_base; // Offsets increment
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//  awf_offset_t* offsets_base; // Offsets increment
+//#endif
 } affine_wavefront_t;
 
 /*
@@ -130,9 +130,9 @@ typedef struct {
   // STATS
   wavefronts_stats_t* wavefronts_stats; // Stats
   // DEBUG
-#ifdef AFFINE_WAVEFRONT_DEBUG
-  affine_table_t gap_affine_table;             // DP-Table encoded by the wavefronts
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//  affine_table_t gap_affine_table;             // DP-Table encoded by the wavefronts
+//#endif
 } affine_wavefronts_t;
 
 /*

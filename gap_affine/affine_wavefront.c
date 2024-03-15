@@ -105,17 +105,17 @@ affine_wavefronts_t* affine_wavefronts_new(
   // STATS
   affine_wavefronts->wavefronts_stats = NULL;
   // DEBUG
-#ifdef AFFINE_WAVEFRONT_DEBUG
-  affine_table_allocate(&affine_wavefronts->gap_affine_table,pattern_length,text_length,mm_allocator);
-  int h, v;
-  for (h=0;h<=text_length;++h) {
-    for (v=0;v<=pattern_length;++v) {
-      affine_wavefronts->gap_affine_table.columns[h][v].M = -1;
-      affine_wavefronts->gap_affine_table.columns[h][v].D = -1;
-      affine_wavefronts->gap_affine_table.columns[h][v].I = -1;
-    }
-  }
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//  affine_table_allocate(&affine_wavefronts->gap_affine_table,pattern_length,text_length,mm_allocator);
+//  int h, v;
+//  for (h=0;h<=text_length;++h) {
+//    for (v=0;v<=pattern_length;++v) {
+//      affine_wavefronts->gap_affine_table.columns[h][v].M = -1;
+//      affine_wavefronts->gap_affine_table.columns[h][v].D = -1;
+//      affine_wavefronts->gap_affine_table.columns[h][v].I = -1;
+//    }
+//  }
+//#endif
   // Return
   return affine_wavefronts;
 }
@@ -130,23 +130,23 @@ void affine_wavefronts_clear(
   for (i=0;i<affine_wavefronts->num_wavefronts;++i) {
     if (mwavefronts[i]!=NULL) {
       mm_allocator_free(mm_allocator,mwavefronts[i]->offsets + mwavefronts[i]->lo_base);
-#ifdef AFFINE_WAVEFRONT_DEBUG
-      mm_allocator_free(mm_allocator,mwavefronts[i]->offsets_base + mwavefronts[i]->lo_base);
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//      mm_allocator_free(mm_allocator,mwavefronts[i]->offsets_base + mwavefronts[i]->lo_base);
+//#endif
       mwavefronts[i] = NULL;
     }
     if (iwavefronts[i]!=NULL) {
       mm_allocator_free(mm_allocator,iwavefronts[i]->offsets + iwavefronts[i]->lo_base);
-#ifdef AFFINE_WAVEFRONT_DEBUG
-      mm_allocator_free(mm_allocator,iwavefronts[i]->offsets_base + iwavefronts[i]->lo_base);
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//      mm_allocator_free(mm_allocator,iwavefronts[i]->offsets_base + iwavefronts[i]->lo_base);
+//#endif
       iwavefronts[i] = NULL;
     }
     if (dwavefronts[i]!=NULL) {
       mm_allocator_free(mm_allocator,dwavefronts[i]->offsets + dwavefronts[i]->lo_base);
-#ifdef AFFINE_WAVEFRONT_DEBUG
-      mm_allocator_free(mm_allocator,dwavefronts[i]->offsets_base + dwavefronts[i]->lo_base);
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//      mm_allocator_free(mm_allocator,dwavefronts[i]->offsets_base + dwavefronts[i]->lo_base);
+//#endif
       dwavefronts[i] = NULL;
     }
   }
@@ -171,9 +171,9 @@ void affine_wavefronts_delete(
   // CIGAR
   edit_cigar_free(&affine_wavefronts->edit_cigar,mm_allocator);
   // DEBUG
-#ifdef AFFINE_WAVEFRONT_DEBUG
-  affine_table_free(&affine_wavefronts->gap_affine_table,mm_allocator);
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//  affine_table_free(&affine_wavefronts->gap_affine_table,mm_allocator);
+//#endif
   // Free handler
   mm_allocator_free(mm_allocator,affine_wavefronts);
 }
@@ -249,11 +249,11 @@ affine_wavefront_t* affine_wavefronts_allocate_wavefront(
   awf_offset_t* const offsets = offsets_mem - lo_base; // Center at k=0
   wavefront->offsets = offsets;
   // DEBUG
-#ifdef AFFINE_WAVEFRONT_DEBUG
-  awf_offset_t* const offsets_base_mem = mm_allocator_calloc(
-      affine_wavefronts->mm_allocator,wavefront_length,awf_offset_t,false);
-  wavefront->offsets_base = offsets_base_mem - lo_base; // Center at k=0
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//  awf_offset_t* const offsets_base_mem = mm_allocator_calloc(
+//      affine_wavefronts->mm_allocator,wavefront_length,awf_offset_t,false);
+//  wavefront->offsets_base = offsets_base_mem - lo_base; // Center at k=0
+//#endif
   // Return
   return wavefront;
 }

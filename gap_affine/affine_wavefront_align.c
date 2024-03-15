@@ -352,16 +352,16 @@ void affine_wavefronts_compute_wavefront(
   // Account for WF operations performed
   //WAVEFRONT_STATS_COUNTER_ADD(affine_wavefronts,wf_operations,hi-lo+1);
   // DEBUG
-#ifdef AFFINE_WAVEFRONT_DEBUG
-  // Copy offsets base before extension (for display purposes)
-  affine_wavefront_t* const mwavefront = affine_wavefronts->mwavefronts[score];
-  if (mwavefront!=NULL) {
-    int k;
-    for (k=mwavefront->lo;k<=mwavefront->hi;++k) {
-      mwavefront->offsets_base[k] = mwavefront->offsets[k];
-    }
-  }
-#endif
+//#ifdef AFFINE_WAVEFRONT_DEBUG
+//  // Copy offsets base before extension (for display purposes)
+//  affine_wavefront_t* const mwavefront = affine_wavefronts->mwavefronts[score];
+//  if (mwavefront!=NULL) {
+//    int k;
+//    for (k=mwavefront->lo;k<=mwavefront->hi;++k) {
+//      mwavefront->offsets_base[k] = mwavefront->offsets[k];
+//    }
+//  }
+//#endif
 }
 /*
  * Computation using Wavefronts
