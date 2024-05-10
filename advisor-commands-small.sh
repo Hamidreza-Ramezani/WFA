@@ -19,7 +19,7 @@ data_path4="${dataset_path}/${synthetic}-l${l4}-${distance}-${pairs_count}Pairs"
 data_path5="${dataset_path}/${synthetic}-l${l5}-${distance}-${pairs_count}Pairs"
 data_path6="${dataset_path}/${synthetic}-l${l6}-${distance}-6400Pairs"
 data_path7="${dataset_path}/${synthetic}-l${l7}-${distance}-6400Pairs"
-results_dir="$HOME/cortes-roofline-results/may6/para-wfa"
+results_dir="$HOME/cortes-roofline-results/may9/para-wfa"
 
 advisor -collect roofline -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs"  --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "0,3,4,1"
 
