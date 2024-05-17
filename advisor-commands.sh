@@ -19,10 +19,10 @@ data_path4="${dataset_path}/${synthetic}-l${l4}-${distance}-${pairs_count}Pairs"
 data_path5="${dataset_path}/${synthetic}-l${l5}-${distance}-${pairs_count}Pairs"
 data_path6="${dataset_path}/${synthetic}-l${l6}-${distance}-1MPairs"
 data_path7="${dataset_path}/${synthetic}-l${l7}-${distance}-1MPairs"
-results_dir="$HOME/cortes-roofline-results/may5/para-wfa"
+results_dir="$HOME/cortes-roofline-results/may16/para-wfa"
 
 
-advisor -collect roofline -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs"  --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "0,3,4,1"
+#advisor -collect roofline -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs"  --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "0,3,4,1"
 
 #advisor -collect roofline -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l2}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "0,3,4,1"
 #
@@ -60,10 +60,10 @@ data_path4="${dataset_path}/${synthetic}-l${l4}-${distance}-${pairs_count}Pairs"
 data_path5="${dataset_path}/${synthetic}-l${l5}-${distance}-${pairs_count}Pairs"
 data_path6="${dataset_path}/${synthetic}-l${l6}-${distance}-1MPairs"
 data_path7="${dataset_path}/${synthetic}-l${l7}-${distance}-1MPairs"
-results_dir="$HOME/cortes-roofline-results/para-wfa"
+results_dir="$HOME/cortes-roofline-results/may16/para-wfa"
 
 
-#advisor -collect roofline -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "0,3,4,1"
+advisor -collect roofline -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l1}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path1} -a gap-affine-wfa -g "0,3,4,1"
 #
 #advisor -collect roofline -stacks -enable-cache-simulation -project-dir "${results_dir}/l${l2}-${distance}-${pairs_count}Pairs" --app-working-dir=$HOME/WFA/bin -- $HOME/WFA/bin/align_benchmark -i ${data_path2} -a gap-affine-wfa -g "0,3,4,1"
 #
