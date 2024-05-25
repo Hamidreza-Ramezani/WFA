@@ -42,13 +42,13 @@ program6="./bin/align_benchmark -i ${data_path6} -a gap-affine-wfa-adaptive -g "
 program7="./bin/align_benchmark -i ${data_path7} -a gap-affine-wfa-adaptive -g "0,3,4,1""
 
 #perf record -g $program1
-$program1
+#$program1
 #$program2
 #$program3
 #$program4
 #$program5
 #$program6
-#$program7
+$program7
 
 
 #start=`date +%s.%N`

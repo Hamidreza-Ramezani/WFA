@@ -53,7 +53,7 @@
 
 #define MAX_LINES 10000000
 
-#define NUM_THREADS 64
+#define NUM_THREADS 32
 
 long file_size;
 int num_lines;
