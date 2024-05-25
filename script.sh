@@ -10,11 +10,10 @@ l6=5000
 l7=10000
 
 user="hamidkeb"
-#dataset_path="/home/$user/dataset"
-dataset_path="/data/hamid/small-datasets"
-pairs_count="640"
-#pairs_count="5M"
-distance="e1"
+dataset_path="/data/hamid"
+#dataset_path="/data/hamid/small-datasets"
+pairs_count="5M"
+distance="e5"
 data1="ERR240727"
 data2="SRR826460"
 data3="SRR826471"
@@ -46,9 +45,9 @@ program7="./bin/align_benchmark -i ${data_path7} -a gap-affine-wfa-adaptive -g "
 #$program2
 #$program3
 #$program4
-#$program5
+$program5
 #$program6
-#$program7
+$program7
 
 
 #start=`date +%s.%N`
