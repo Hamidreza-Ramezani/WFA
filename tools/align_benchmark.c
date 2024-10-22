@@ -370,186 +370,210 @@ void *align(void *args)
 
 
 
-void align_benchmark(const alg_algorithm_type alg_algorithm) {
-    pthread_t threads[NUM_THREADS];
-    int thread_ids[NUM_THREADS];
-    //double time = what_time_is_it();
-    char ***thread_args = malloc(NUM_THREADS * sizeof(char **));
-    FILE *input_file = NULL;
-    input_file = fopen(parameters.input, "r");
-    //fseek(input_file, 0, SEEK_END);
-    //file_size = ftell(input_file);
-    char **all_lines = malloc(MAX_LINES * sizeof(char *));
-    if (all_lines == NULL) {
-        perror("Memory allocation failed");
-        fclose(input_file);
-        return;
-    }
-
-    size_t len = 0;
-    ssize_t read;
-    char *line = NULL;
-    //line_lengths = malloc(MAX_LINES * sizeof(int));
-    int count = 0;
-
-    while ((read = getline(&line, &len, input_file)) != -1) {
-        //line_lengths[count] = read;
-        all_lines[count++] = line;
-        line = NULL; // getline will allocate a new buffer
-    }
-    num_lines = count;
-
-    //printf("numlines is %d\n", num_lines);
-    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
-    if (lines_per_thread%2 == 1) {
-       lines_per_thread++;
-    }
-    //Struct timeval  tv1, tv2;
-    //Gettimeofday(&tv1, NULL);
-    timer_restart(&(parameters.timer_global));
-    // Create the threads
-    for (int i = 0; i < NUM_THREADS; i++) {
-        //thread_ids[i] = i;
-        //pthread_create(&threads[i], NULL, align, &thread_ids[i]);
-        int start_line = i * lines_per_thread;
-        int end_line = (i + 1) * lines_per_thread - 1;
-        if (i == NUM_THREADS - 1) {
-            end_line = num_lines - 1;
-        }
-        //thread_args[i][0] = i; // First element is the thread ID
-        thread_args[i] = malloc((lines_per_thread + 1) * sizeof(char *));
-        thread_args[i][0] = (char *)(intptr_t)i; // Store the thread ID as the first element
-        for (int j = start_line; j <= end_line; j++) {
-            thread_args[i][j - start_line + 1] = all_lines[j];
-        }
-        pthread_create(&threads[i], NULL, align, thread_args[i]);
-    }
-
-    // Wait for the threads to finish
-    for (int i = 0; i < NUM_THREADS; i++) {
-        pthread_join(threads[i], NULL);
-        //free(thread_args[i]); // Free the thread's lines array
-    }
-
-    timer_stop(&(parameters.timer_global));
-    timer_print(stderr,&parameters.timer_global,NULL);
-    //gettimeofday(&tv2, NULL);
-    //printf ("Total time = %f seconds\n",
-    //     (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
-    //     (double) (tv2.tv_sec - tv1.tv_sec));
-    free(line_lengths);
-    free(thread_args); // Free the array of thread arguments
-    free(all_lines); // Free the array of pointers
-    fclose(input_file);
-}
-
-
 //void align_benchmark(const alg_algorithm_type alg_algorithm) {
-//  // Parameters
-//  FILE *input_file = NULL;
-//  char *line1 = NULL, *line2 = NULL;
-//  int line1_length=0, line2_length=0;
-//  size_t line1_allocated=0, line2_allocated=0;
-//  align_input_t align_input;
-//  // Init
-//  timer_restart(&(parameters.timer_global));
-//  input_file = fopen(parameters.input, "r");
-//  if (input_file==NULL) {
-//    fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
-//    exit(1);
-//  }
-//  benchmark_align_input_clear(&align_input);
-//  align_input.debug_flags = 0;
-//  align_input.debug_flags |= parameters.check_metric;
-//  if (parameters.check_correct) align_input.debug_flags |= ALIGN_DEBUG_CHECK_CORRECT;
-//  if (parameters.check_score) align_input.debug_flags |= ALIGN_DEBUG_CHECK_SCORE;
-//  if (parameters.check_alignments) align_input.debug_flags |= ALIGN_DEBUG_CHECK_ALIGNMENT;
-//  align_input.check_lineal_penalties = &parameters.lineal_penalties;
-//  align_input.check_affine_penalties = &parameters.affine_penalties;
-//  align_input.check_bandwidth = parameters.check_bandwidth;
-//  align_input.verbose = parameters.verbose;
-//  align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
-//  timer_reset(&align_input.timer);
-//  // Read-align loop
-//  int reads_processed = 0, progress = 0;
-//
-//   while (true) {
-//    // Read queries
-//    line1_length = getline(&line1, &line1_allocated, input_file);
-//    line2_length = getline(&line2, &line2_allocated, input_file);
-//    if (line1_length == -1 || line2_length == -1) break;
-//    // Configure input
-//    align_input.sequence_id = reads_processed;
-//    align_input.pattern = line1+1;
-//    align_input.pattern_length = line1_length-2;
-//    align_input.pattern[align_input.pattern_length] = '\0';
-//    align_input.text = line2+1;
-//    align_input.text_length = line2_length-2;
-//    align_input.text[align_input.text_length] = '\0';
-//    // Align queries using DP
-//    switch (alg_algorithm) {
-//      case alignment_edit_dp:
-//        benchmark_edit_dp(&align_input);
-//        break;
-//      case alignment_edit_dp_banded:
-//        benchmark_edit_dp_banded(&align_input,parameters.bandwidth);
-//        break;
-//      case alignment_gap_lineal_nw:
-//        benchmark_gap_lineal_nw(&align_input,&parameters.lineal_penalties);
-//        break;
-//      case alignment_gap_affine_swg:
-//        benchmark_gap_affine_swg(&align_input,&parameters.affine_penalties);
-//        break;
-//      case alignment_gap_affine_swg_banded:
-//        benchmark_gap_affine_swg_banded(&align_input,
-//            &parameters.affine_penalties,parameters.bandwidth);
-//        break;
-//      case alignment_gap_affine_wavefront:
-//        benchmark_gap_affine_wavefront(
-//            &align_input,&parameters.affine_penalties,
-//            parameters.min_wavefront_length,
-//            parameters.max_distance_threshold);
-//        break;
-//        printf("line1_length %d\n", line1_length);
-//      default:
-//        fprintf(stderr,"Algorithm unknown or not implemented\n");
-//        exit(1);
-//        break;
+//    pthread_t threads[NUM_THREADS];
+//    int thread_ids[NUM_THREADS];
+//    //double time = what_time_is_it();
+//    char ***thread_args = malloc(NUM_THREADS * sizeof(char **));
+//    FILE *input_file = NULL;
+//    input_file = fopen(parameters.input, "r");
+//    //fseek(input_file, 0, SEEK_END);
+//    //file_size = ftell(input_file);
+//    char **all_lines = malloc(MAX_LINES * sizeof(char *));
+//    if (all_lines == NULL) {
+//        perror("Memory allocation failed");
+//        fclose(input_file);
+//        return;
 //    }
-//    // Update progress
-//    ++reads_processed;
-//    // DEBUG mm_allocator_print(stderr,align_input.mm_allocator,true);
-//    if (++progress == parameters.progress) {
-//      progress = 0;
-//      // Compute speed
-//      const uint64_t time_elapsed_global = timer_elapsed_ns(&(parameters.timer_global));
-//      const float rate_global = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_global);
-//      const uint64_t time_elapsed_alg = timer_elapsed_ns(&(align_input.timer));
-//      const float rate_alg = (float)reads_processed/(float)TIMER_CONVERT_NS_TO_S(time_elapsed_alg);
-//      //fprintf(stderr,"...processed %d reads (benchmark=%2.3f reads/s;alignment=%2.3f reads/s)\n",reads_processed,rate_global,rate_alg);
+//
+//    size_t len = 0;
+//    ssize_t read;
+//    char *line = NULL;
+//    //line_lengths = malloc(MAX_LINES * sizeof(int));
+//    int count = 0;
+//
+//    while ((read = getline(&line, &len, input_file)) != -1) {
+//        //line_lengths[count] = read;
+//        all_lines[count++] = line;
+//        line = NULL; // getline will allocate a new buffer
 //    }
-//  } //while
+//    num_lines = count;
 //
+//    //printf("numlines is %d\n", num_lines);
+//    int lines_per_thread = (num_lines + NUM_THREADS - 1) / NUM_THREADS;
+//    if (lines_per_thread%2 == 1) {
+//       lines_per_thread++;
+//    }
+//    //Struct timeval  tv1, tv2;
+//    //Gettimeofday(&tv1, NULL);
+//    timer_restart(&(parameters.timer_global));
+//    // Create the threads
+//    for (int i = 0; i < NUM_THREADS; i++) {
+//        //thread_ids[i] = i;
+//        //pthread_create(&threads[i], NULL, align, &thread_ids[i]);
+//        int start_line = i * lines_per_thread;
+//        int end_line = (i + 1) * lines_per_thread - 1;
+//        if (i == NUM_THREADS - 1) {
+//            end_line = num_lines - 1;
+//        }
+//        //thread_args[i][0] = i; // First element is the thread ID
+//        thread_args[i] = malloc((lines_per_thread + 1) * sizeof(char *));
+//        thread_args[i][0] = (char *)(intptr_t)i; // Store the thread ID as the first element
+//        for (int j = start_line; j <= end_line; j++) {
+//            thread_args[i][j - start_line + 1] = all_lines[j];
+//        }
+//        pthread_create(&threads[i], NULL, align, thread_args[i]);
+//    }
 //
-//  timer_stop(&(parameters.timer_global));
-//  // Print benchmark results
-//  //fprintf(stderr,"[Benchmark]\n");
-//  //fprintf(stderr,"=> Total.reads            %d\n",reads_processed);
-//  fprintf(stderr,"=> Time.Benchmark      ");
-//  timer_print(stderr,&parameters.timer_global,NULL);
-//  //fprintf(stderr,"  => Time.Alignment    ");
-//  //timer_print(stderr,&align_input.timer,&parameters.timer_global);
-//  // Print Stats
-//  if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
-//    const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
-//    benchmark_print_stats(stderr,&align_input,print_wf_stats);
-//  }
-//  // Free
-//  fclose(input_file);
-//  mm_allocator_delete(align_input.mm_allocator);
-//  free(line1);
-//  free(line2);
+//    // Wait for the threads to finish
+//    for (int i = 0; i < NUM_THREADS; i++) {
+//        pthread_join(threads[i], NULL);
+//        //free(thread_args[i]); // Free the thread's lines array
+//    }
+//
+//    timer_stop(&(parameters.timer_global));
+//    timer_print(stderr,&parameters.timer_global,NULL);
+//    //gettimeofday(&tv2, NULL);
+//    //printf ("Total time = %f seconds\n",
+//    //     (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+//    //     (double) (tv2.tv_sec - tv1.tv_sec));
+//    free(line_lengths);
+//    free(thread_args); // Free the array of thread arguments
+//    free(all_lines); // Free the array of pointers
+//    fclose(input_file);
 //}
+
+
+void align_benchmark(const alg_algorithm_type alg_algorithm) {
+  // Parameters
+
+  struct timeval tv1,tv2;
+  FILE *input_file = NULL;
+  char *line1 = NULL, *line2 = NULL;
+  int line1_length=0, line2_length=0;
+  size_t line1_allocated=0, line2_allocated=0;
+  align_input_t align_input_master;
+  // Init
+  timer_restart(&(parameters.timer_global));
+  input_file = fopen(parameters.input, "r");
+  if (input_file==NULL) {
+    fprintf(stderr,"Input file '%s' couldn't be opened\n",parameters.input);
+    exit(1);
+  }
+
+  char **all_lines = malloc(MAX_LINES * sizeof(char *));
+  size_t len = 0;
+  ssize_t read;
+  char *line = NULL;
+  int count = 0;
+  while ((read = getline(&line, &len, input_file)) != -1) {
+      //line_lengths[count] = read;
+      all_lines[count++] = line;
+      line = NULL; // getline will allocate a new buffer
+  }
+  num_lines = count;
+
+  benchmark_align_input_clear(&align_input_master);
+  align_input_master.debug_flags = 0;
+  align_input_master.debug_flags |= parameters.check_metric;
+  if (parameters.check_correct) align_input_master.debug_flags |= ALIGN_DEBUG_CHECK_CORRECT;
+  if (parameters.check_score) align_input_master.debug_flags |= ALIGN_DEBUG_CHECK_SCORE;
+  if (parameters.check_alignments) align_input_master.debug_flags |= ALIGN_DEBUG_CHECK_ALIGNMENT;
+  align_input_master.check_lineal_penalties = &parameters.lineal_penalties;
+  align_input_master.check_affine_penalties = &parameters.affine_penalties;
+  align_input_master.check_bandwidth = parameters.check_bandwidth;
+  align_input_master.verbose = parameters.verbose;
+  align_input_master.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
+  timer_reset(&align_input_master.timer);
+  // Read-align loop
+  int reads_processed = 0, progress = 0;
+  gettimeofday(&tv1, NULL);
+
+  omp_set_num_threads(64);
+  #pragma omp parallel for schedule(dynamic)
+  for (size_t i = 0; i < MAX_LINES; i += 2) {
+      align_input_t align_input;
+      benchmark_align_input_clear(&align_input);
+  
+      // Set align_input fields (thread-specific configuration)
+      align_input.debug_flags = 0;
+      align_input.debug_flags |= parameters.check_metric;
+      if (parameters.check_correct) align_input.debug_flags |= ALIGN_DEBUG_CHECK_CORRECT;
+      if (parameters.check_score) align_input.debug_flags |= ALIGN_DEBUG_CHECK_SCORE;
+      if (parameters.check_alignments) align_input.debug_flags |= ALIGN_DEBUG_CHECK_ALIGNMENT;
+      align_input.check_lineal_penalties = &parameters.lineal_penalties;
+      align_input.check_affine_penalties = &parameters.affine_penalties;
+      align_input.check_bandwidth = parameters.check_bandwidth;
+      align_input.verbose = parameters.verbose;
+      align_input.mm_allocator = mm_allocator_new(BUFFER_SIZE_8M);
+      timer_reset(&align_input.timer);
+  
+      // Read queries
+      char* line1 = all_lines[i];
+      char* line2 = all_lines[i + 1];
+      size_t line1_length = strlen(line1);
+      size_t line2_length = strlen(line2);
+  
+      // Configure input
+      align_input.sequence_id = i / 2;  // Unique ID for each sequence
+      align_input.pattern = line1 + 1;
+      align_input.pattern_length = line1_length - 2;
+      align_input.pattern[align_input.pattern_length] = '\0';
+      align_input.text = line2 + 1;
+      align_input.text_length = line2_length - 2;
+      align_input.text[align_input.text_length] = '\0';
+  
+      // Align queries using DP
+      benchmark_gap_affine_wavefront(
+          &align_input, &parameters.affine_penalties,
+          parameters.min_wavefront_length,
+          parameters.max_distance_threshold);
+  
+      // Clean up allocator
+      mm_allocator_delete(align_input.mm_allocator);
+  }
+
+  //while (true) {
+  //  // Read queries
+  //  line1_length = getline(&line1, &line1_allocated, input_file);
+  //  line2_length = getline(&line2, &line2_allocated, input_file);
+  //  if (line1_length == -1 || line2_length == -1) break;
+  //  // Configure input
+  //  align_input.sequence_id = reads_processed;
+  //  align_input.pattern = line1+1;
+  //  align_input.pattern_length = line1_length-2;
+  //  align_input.pattern[align_input.pattern_length] = '\0';
+  //  align_input.text = line2+1;
+  //  align_input.text_length = line2_length-2;
+  //  align_input.text[align_input.text_length] = '\0';
+  //  // Align queries using DP
+  //  benchmark_gap_affine_wavefront(
+  //      &align_input,&parameters.affine_penalties,
+  //      parameters.min_wavefront_length,
+  //      parameters.max_distance_threshold);
+  //  // Update progress
+  //  ++reads_processed;
+  //} //while
+
+
+  timer_stop(&(parameters.timer_global));
+
+  gettimeofday(&tv2, NULL);
+  printf ("Total time = %f seconds\n",
+       (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+       (double) (tv2.tv_sec - tv1.tv_sec));
+  //fprintf(stderr,"=> Time.Benchmark      ");
+  //timer_print(stderr,&parameters.timer_global,NULL);
+  if (parameters.check_correct || parameters.check_score || parameters.check_alignments) {
+    const bool print_wf_stats = (alg_algorithm == alignment_gap_affine_wavefront);
+    benchmark_print_stats(stderr,&align_input_master,print_wf_stats);
+  }
+  // Free
+  fclose(input_file);
+  mm_allocator_delete(align_input_master.mm_allocator);
+  free(line1);
+  free(line2);
+}
 
 
 

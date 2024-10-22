@@ -13,7 +13,7 @@ user="hamidkeb"
 #dataset_path="/home/$user/dataset"
 dataset_path="/data/hamid"
 pairs_count="5M"
-distance="e5"
+distance="e1"
 data1="ERR240727"
 data2="SRR826460"
 data3="SRR826471"
@@ -41,14 +41,13 @@ program5="./bin/align_benchmark -i ${data_path5} -a gap-affine-wfa -g "0,3,4,1""
 program6="./bin/align_benchmark -i ${data_path6} -a gap-affine-wfa-adaptive -g "0,3,4,1""
 program7="./bin/align_benchmark -i ${data_path7} -a gap-affine-wfa-adaptive -g "0,3,4,1""
 
-#perf record -g $program1
-#$program1
-#$program2
-#$program3
-#$program4
-#$program5
+$program1
+$program2
+$program3
+$program4
+$program5
 #$program6
-$program7
+#$program7
 
 
 #start=`date +%s.%N`
